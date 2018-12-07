@@ -3,6 +3,7 @@
 #include <thread>
 #include "HmiEvent.h"
 #include "HmiMain.h"
+#include "Simulator.h"
 
 void init(void)
 {
@@ -14,12 +15,16 @@ void hmiMain(HmiMain* p_hmi)
     p_hmi->Start();
 }
 
-int main(void)
+
+
+int main(int argc, char* argv[])
 {
     // 创建HMI_MAIN线程
     HmiMain* p_hmi = new HmiMain();
     std::thread hmi_main(hmiMain, p_hmi);
     hmi_main.detach();
+    static Simulator sim;
+    sim.gtkmain(argc, argv);
 
     while(true)
     {

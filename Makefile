@@ -2,10 +2,11 @@ SIMULATOR = simulator
 SRC_DIR = src
 SRC_OBJS = src/Common.o\
 			src/HmiEvent.o\
-			src/HmiMain.o 
+			src/HmiMain.o\
+			src/Simulator.o 
 
-CMNINC	= -I inc/ -I src/ -lpthread
-GPPFLAGS = -g -Wall -std=gnu++11 $(CMNINC)
+CMNINC	= -I inc/ -I src/ -I /usr/include/gtk-3.0 -lpthread
+GPPFLAGS = -g -Wall -std=gnu++11 $(CMNINC) `pkg-config --cflags --libs gtk+-3.0`
 GPP = g++
 
 
