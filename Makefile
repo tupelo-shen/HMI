@@ -3,7 +3,8 @@ SRC_DIR 	= src
 SRC_OBJS 	= src/Common.o\
 			src/HmiEvent.o\
 			src/HmiMain.o\
-			src/Simulator.o
+			src/Simulator.o\
+			src/GDC_Sim.o
 
 GPP 		= g++
 CMNINC 		= -I inc/ -I src/

@@ -8,7 +8,30 @@
 #define __SIMULATOR_H__
 
 #include <gtk/gtk.h>
-#include <gtk/gtk.h>
+#include <string>
+
+using namespace std;
+
+class Options
+{
+public:
+    Options(const char *f_name);
+    virtual ~Options(void);
+
+    static Options      &refObject(void);
+
+public:
+    string              iniFileName;
+    string              uart[5];
+    string              logSwitch;
+    string              logFolder;
+    string              logFileName;
+    string              progtamFlash;
+    string              dataFlash;
+    string              sensor_ch[2];
+private:
+    static Options      *obj;    
+};
 
 class Simulator
 {
