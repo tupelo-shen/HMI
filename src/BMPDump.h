@@ -54,7 +54,52 @@ namespace SimulatorPlatform
         /**
         * Windows birmap file infomation
         */
-        BitmapInfo          info;        
-    }
+        BitmapInfo          info;
+    
+    private:
+        /**
+         * 16 bit color raw data
+         */
+        unsigned short *    raw;
+
+        /**
+         * 24 bit color raw data
+         */
+        unsigned char *     raw24bit;
+
+        /**
+         * 24 bit color raw data(duble size)
+         */
+        unsigned char *     raw24bit2;
+
+    public:
+        BitMapDump(void);
+        virtual ~BitMapDump(void);
+
+        virtual BitMapDump&         operator=(const BitMapDump& org);
+        virtual void                loadFile(const char* f_name);
+        virtual void                makeTable();
+        virtual void                loadDat();
+    private:
+        virtual void                createRawData(void);
+    public:
+        virtual void                convFromRaw(unsigned long y, unsigned long height);
+        virtual void                copyRaw(BitMapDump & org);
+        virtual void                mkFileImage(void);
+        virtual unsigned char*      get24BitRawData(void);
+        virtual unsigned char*      get24BitRawData2(void);
+        virtual void                print(void) const;
+        unsigned long               size(void);
+        unsigned char*              ptr(void);
+        unsigned long               imageSize(void);
+        unsigned char*              image(void) const;
+        unsigned long               width(void) const;
+        unsigned long               height(void) const;
+        void                        fill(unsigned short data);
+        void                        convertColor8to16(unsigned char *color8, 
+                                                        unsigned short *color_pal);
+        unsigned short*             getRaw();
+        void                        clearRaw();        
+    };
 }
 #endif /* __BMPDUMP_h__ */

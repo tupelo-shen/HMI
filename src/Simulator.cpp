@@ -204,3 +204,13 @@ int Simulator::gtkmain(int argc, char* argv[])
     gtk_main();
     return 0;       
 }
+/*
+ *      描述
+ * @params
+ * @return
+ */
+void Simulator::initBmp()
+{
+    disp.init();
+}
+

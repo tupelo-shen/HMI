@@ -4,14 +4,15 @@ SRC_OBJS 	= src/Common.o\
 			src/HmiEvent.o\
 			src/HmiMain.o\
 			src/Simulator.o\
-			src/GDC_Sim.o
+			src/GDC_Sim.o\
+			src/BMPDump.o
 
 GPP 		= g++
 CMNINC 		= -I inc/ -I src/
 GCCFLAGS 	= -g -Wall `pkg-config --cflags --libs gtk+-3.0`
 GPPFLAGS	:= -g -Wall -std=c++11 `pkg-config --cflags gtk+-3.0` $(CMNINC)
 LDFLAGS		:= `pkg-config --libs gtk+-3.0`
-
+LIBS 		+= -lboost_system
 
 all: sim
 	@bash --norc -c "date '+%Y%m%d %H:%M %S'"

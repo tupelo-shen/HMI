@@ -9,6 +9,7 @@
 
 #include <gtk/gtk.h>
 #include <string>
+#include "HMI_BMPDump.h"
 
 using namespace std;
 
@@ -42,15 +43,15 @@ public:
 
     static Simulator&               refObject(void);
     int                             gtkmain(int argc, char* argv[]);
-    // void                            initBmp();
-    // SimulatorPlatform::BitMapDump*  getBmp();
+    void                            initBmp();
+    SimulatorPlatform::BitMapDump*  getBmp(void) { return &disp; };
     GtkWidget*                      getDw(void) { return dw; };
 
 private:
-    static Simulator*   obj;
-    bool                fullScreenMode;
-    GtkWidget*          dw;
-    // SimulatorPlatform::Liq4WC_BitMapDump disp;                       
+    static Simulator*               obj;
+    bool                            fullScreenMode;
+    GtkWidget*                      dw;
+    SimulatorPlatform::HMI_BitMapDump disp;                       
 };
 
 #endif /* __SIMULATOR_H__ */
