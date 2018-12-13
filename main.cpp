@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
         int input = getchar();
 
         tcsetattr(0, TCSANOW, &stored_settings);
-        
+
         if(input != EOF)
         {
             HmiEvent ev(HmiEvent::HMI_EV_KEYDOWN, (unsigned long)input);

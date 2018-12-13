@@ -1,13 +1,15 @@
-SIMULATOR = simulator
-SRC_DIR = src
-SRC_OBJS = src/Common.o\
+SIMULATOR 	= simulator
+SRC_DIR 	= src
+SRC_OBJS 	= src/Common.o\
 			src/HmiEvent.o\
 			src/HmiMain.o\
-			src/Simulator.o 
+			src/Simulator.o
 
-CMNINC	= -I inc/ -I src/ -I /usr/include/gtk-3.0 -lpthread
-GPPFLAGS = -g -Wall -std=gnu++11 $(CMNINC) `pkg-config --cflags --libs gtk+-3.0`
-GPP = g++
+GPP 		= g++
+CMNINC 		= -I inc/ -I src/
+GCCFLAGS 	= -g -Wall `pkg-config --cflags --libs gtk+-3.0`
+GPPFLAGS	:= -g -Wall -std=c++11 `pkg-config --cflags gtk+-3.0` $(CMNINC)
+LDFLAGS		:= `pkg-config --libs gtk+-3.0`
 
 
 all: sim
@@ -22,13 +24,13 @@ Makefile-g++.dep: src/*.cpp Makefile
 
 $(SIMULATOR): main.cpp src/*.h $(SRC_OBJS)
 	@echo "testing..."
-	$(GPP) -o $(SIMULATOR) main.cpp $(SRC_OBJS) $(GPPFLAGS) $(LIBS)
+	$(GPP) -o $(SIMULATOR) main.cpp $(SRC_OBJS) $(GPPFLAGS) $(LDFLAGS)
 
 src/%.o : src/%.c
-	$(GPP) -c           $(GPPFLAGS) -o $@ $<
+	$(GPP) -c $(GPPFLAGS) -o $@ $< $(LDFLAGS)
 
 depend: Makefile-g++.dep
 	ls -l *.dep
 
 clean:
-	rm -f *.o $(SIMULATOR) $(SRC_DIR)/*.o  
+	rm -f *.o $(SIMULATOR) $(SRC_DIR)/*.o
