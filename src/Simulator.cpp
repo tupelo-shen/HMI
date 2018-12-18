@@ -264,6 +264,7 @@ static gboolean draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
     return FALSE;
 }
 
+// modbus数据结构
 typedef struct
 {
     unsigned short addr;
