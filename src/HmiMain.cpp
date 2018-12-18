@@ -19,7 +19,6 @@ extern "C" void SendEvent2HMI(
     pf_drag_flick_direction_t   direc
 )
 {
-    // HmiEvent ev(HMI_EV_MOUSE_PRESSED, (unsigned long)pnt.x);
     HmiEvent ev_info(HmiEvent::HMI_EV_MOUSE_PRESSED, (unsigned long)pnt.x);
     HMIMAIN->SetReady(true);
     HMIMAIN->AddEventQueue(ev_info);

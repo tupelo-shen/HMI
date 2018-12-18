@@ -6,6 +6,16 @@
 pf_touch_event_func_t touchpanel_callback;
 pf_touch_config_t touchpanel_config;
 
+/*
+ *      设置触摸板配置数据
+ *
+ * @params
+ *          func，   event发生时，调用的回调函数
+ *          config， 指向event配置数据结构体的指针
+ * @return
+ *          如果回调函数没有被指定，则返回-1；
+ *          成功，返回0；
+ */
 int GDC_DRV_SetTouchPanelConfigData(pf_touch_event_func_t func, const pf_touch_config_t* config)
 {
     pf_touch_config_t temp_config = *config;

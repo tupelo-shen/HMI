@@ -5,9 +5,11 @@
  * @Create Date:    2018-02-27
  */
 #include <assert.h>
+#include <stdlib.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <vector>
+#include <cairo.h>
 #include "Simulator.h"
 #include "GDC_Driver.h"
 
@@ -16,7 +18,7 @@ using namespace boost;
 using namespace boost::property_tree;
 
 Options *Options::obj = 0;
-// ------------------<< file local class >>-----
+// ------------------<< local class ConstCString>>-----
 class ConstCString
 {
     private:
@@ -43,6 +45,14 @@ class ConstCString
         inline bool operator == (const char * str) const;
         inline signed long select(const char * list[], signed long size) const;
 };
+
+/*
+ *          inline函数： 比较两个C字符串
+ * @params
+ *          str：指向要比较const字符串的指针
+ * @return
+ *          0，相等；1，比要比较的字符串小；2，比要比较的字符串大
+ */
 inline int ConstCString::strcmp(const char * str) const
 {
     const char * base = this->str;
@@ -56,6 +66,15 @@ inline int ConstCString::strcmp(const char * str) const
     return 0;
 }
 
+/*
+ *      inline函数： 判断2个C字符串是否相等
+ *
+ * @params
+ *          str：指向要比较const字符串的指针
+ * @return
+ *          true，相等；
+ *          false，不相等；
+ */
 inline bool ConstCString::operator == (const char * str) const
 {
     if(0 == strcmp(str))
@@ -65,6 +84,16 @@ inline bool ConstCString::operator == (const char * str) const
     return false;
 }
 
+/*
+ *      inline函数： 从字符串列表中，选出一个与字符串相等的项
+ *
+ * @params
+ *          list[]， 字符串列表
+ *          size，   字符串列表的大小
+ * @return
+ *          成功返回列表中对应项的索引idx；
+ *          不成功，返回-1；
+ */
 inline signed long ConstCString::select(const char * list[], signed long size) const
 {
     for(signed long idx = 0; idx < size; idx ++)
@@ -199,6 +228,42 @@ typedef struct
     GtkWidget*      widget;
     const char*     label;
 } RadioLinkWidget;
+
+/*
+ *      回调函数 ： 描述事件的回调函数
+ *
+ * @params
+ *          widget， 描画事件的窗口句柄
+ *          cr，
+ *          data，        
+ * @return
+ *          成功返回列表中对应项的索引idx；
+ *          不成功，返回-1；
+ */
+static gboolean draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
+{
+    Simulator& app = *(Simulator *)data;
+
+    if(app.getBmp()->get24BitRawData2() != NULL)
+    {
+        GdkPixbuf* pixbuf = 0;
+        pixbuf = gdk_pixbuf_new_from_data(app.getBmp()->get24BitRawData2(),
+                                GDK_COLORSPACE_RGB,                                 /* RGB-colorspace */
+                                FALSE,                                              /* No alpha-channel */
+                                8,                                                  /* Bits per RGB-component */
+                                app.getBmp()->width()*2, app.getBmp()->height()*2,  /* Dimensions */
+                                3 * app.getBmp()->width()*2,                        /* Number of bytes between lines (ie stride) */  
+                                NULL, NULL);                                        /* 回调函数 */
+        if(0 != pixbuf)
+        {
+            gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
+            cairo_paint(cr);
+        }
+    }
+
+    return FALSE;
+}
+
 typedef struct
 {
     unsigned short addr;
@@ -206,49 +271,49 @@ typedef struct
     const char * lavel;
     const char * value;
 } ModbusData;
-static void create_model( GtkWidget * treeview )
+static void create_model(GtkWidget * treeview)
 {
-    GtkListStore * store = gtk_list_store_new( 4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );
-    gtk_tree_view_set_model( GTK_TREE_VIEW( treeview ), GTK_TREE_MODEL( store ) );
+    GtkListStore * store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
     g_object_unref(store);
 }
 
-static void set_data( GtkWidget * treeview, vector< ModbusData > modbus )
+static void set_data(GtkWidget * treeview, vector< ModbusData > modbus)
 {
-    GtkListStore * store = GTK_LIST_STORE( gtk_tree_view_get_model( GTK_TREE_VIEW( treeview ) ) );
-    gtk_list_store_clear( store );
+    GtkListStore * store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(treeview)));
+    gtk_list_store_clear(store);
     GtkTreeIter iter;
-    for( unsigned long idx = 0; idx < modbus.size() ; idx ++ )
+    for(unsigned long idx = 0; idx < modbus.size() ; idx ++)
     {
         char addr[5];
         char data[6];
-        sprintf( addr, "%04x",  modbus[idx].addr );
-        sprintf( data, "%04xh", modbus[idx].data );
+        sprintf(addr, "%04x",  modbus[idx].addr);
+        sprintf(data, "%04xh", modbus[idx].data);
         gtk_list_store_append(store, &iter);
-        gtk_list_store_set( store, &iter, 0, addr, 1, data, 2, modbus[idx].lavel, 3, modbus[idx].value, -1 );
+        gtk_list_store_set(store, &iter, 0, addr, 1, data, 2, modbus[idx].lavel, 3, modbus[idx].value, -1);
     }
 }
 
-static void append_column_to_treeview( GtkWidget * treeview, const char * title, const int order )
+static void append_column_to_treeview(GtkWidget * treeview, const char * title, const int order)
 {
     GtkCellRenderer * renderer = gtk_cell_renderer_text_new();
-    GtkTreeViewColumn * column = gtk_tree_view_column_new_with_attributes( title, renderer, "text",  order, NULL );
-    gtk_tree_view_append_column( GTK_TREE_VIEW( treeview ), column );
+    GtkTreeViewColumn * column = gtk_tree_view_column_new_with_attributes(title, renderer, "text",  order, NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 }
 
 static void create_view(GtkWidget *treeview)
 {
-    append_column_to_treeview( treeview, "Address", 0 );
-    append_column_to_treeview( treeview, "Data", 1 );
-    append_column_to_treeview( treeview, "Label", 2 );
-    append_column_to_treeview( treeview, "value", 3 );
+    append_column_to_treeview(treeview, "Address", 0);
+    append_column_to_treeview(treeview, "Data", 1);
+    append_column_to_treeview(treeview, "Label", 2);
+    append_column_to_treeview(treeview, "value", 3);
 }
 //-----------------<< 创建主窗口 >>--------------------------------------
-static GtkWidget * createModbusInput( void )
+static GtkWidget * createModbusInput(void)
 {
     static const char * label[] = { "Coil", "Input", "Hold", "File", "Ident"  };
     GtkWidget * note = gtk_notebook_new();
-    for( unsigned long idx = 0; idx < ( sizeof( label) / sizeof(const char *) ); idx ++ )
+    for(unsigned long idx = 0; idx < (sizeof(label) / sizeof(const char *)); idx ++)
     {
         GtkWidget * treeView = gtk_tree_view_new();
         static const ModbusData db_init[] =
@@ -279,20 +344,20 @@ static GtkWidget * createModbusInput( void )
             { 0x0017, 0xffff, "",     ""          }
         };
         vector< ModbusData > DataBase;
-        for( unsigned long idx = 0; idx < ( sizeof( db_init ) / sizeof( ModbusData ) ) ; idx ++ )
+        for(unsigned long idx = 0; idx < (sizeof(db_init) / sizeof(ModbusData)) ; idx ++)
         {
-            DataBase.push_back( db_init[idx] );
+            DataBase.push_back(db_init[idx]);
         }
-        create_model( treeView );
-        set_data( treeView, DataBase );
-        create_view( treeView );
+        create_model(treeView);
+        set_data(treeView, DataBase);
+        create_view(treeView);
 
-        gtk_widget_show( treeView );
-        GtkWidget * scrollWindow = gtk_scrolled_window_new( NULL, NULL );
-        gtk_widget_show( scrollWindow );
-        gtk_widget_set_size_request( scrollWindow, 200,300 );
-        gtk_container_add( GTK_CONTAINER( scrollWindow ), treeView );
-        gtk_notebook_append_page( GTK_NOTEBOOK( note ), scrollWindow, gtk_label_new( label[idx] ) );
+        gtk_widget_show(treeView);
+        GtkWidget * scrollWindow = gtk_scrolled_window_new(NULL, NULL);
+        gtk_widget_show(scrollWindow);
+        gtk_widget_set_size_request(scrollWindow, 200,300);
+        gtk_container_add(GTK_CONTAINER(scrollWindow), treeView);
+        gtk_notebook_append_page(GTK_NOTEBOOK(note), scrollWindow, gtk_label_new(label[idx]));
     }
     return note;
 }
@@ -324,12 +389,12 @@ static GtkWidget * createInputPanel(const char * labels[][2], unsigned int size)
     return vbox;
 }
 
-static GtkWidget * createSensorPanels( vector< RadioLinkWidget > & widgetList )
+static GtkWidget * createSensorPanels(vector< RadioLinkWidget > & widgetList)
 {
-    GtkWidget * hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
+    GtkWidget * hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     static const char * label[] = { "pH", "SC", "ISC", "DO", "DO70G" };
-    widgetList.reserve( ( sizeof( label) / sizeof(const char *) ) );
-    for( unsigned long idx = 0; idx < ( sizeof( label) / sizeof(const char *) ); idx ++ )
+    widgetList.reserve((sizeof(label) / sizeof(const char *)));
+    for(unsigned long idx = 0; idx < (sizeof(label) / sizeof(const char *)); idx ++)
     {
         static const char * pH_labels[5][2] =
         {
@@ -354,80 +419,80 @@ static GtkWidget * createSensorPanels( vector< RadioLinkWidget > & widgetList )
         };
         RadioLinkWidget panel;
         panel.label = label[idx];
-        ConstCString str( label[idx] );
-        switch( str.select( label, ( sizeof( label) / sizeof(const char *) ) ) )
+        ConstCString str(label[idx]);
+        switch(str.select(label, (sizeof(label) / sizeof(const char *))))
         {
             case 0:
-                panel.widget = createInputPanel( pH_labels, (sizeof(pH_labels) / ( sizeof( const char * )*2)) );
-                gtk_widget_show( panel.widget );
+                panel.widget = createInputPanel(pH_labels, (sizeof(pH_labels) / (sizeof(const char *)*2)));
+                gtk_widget_show(panel.widget);
                 break;
             case 1:
-                panel.widget = createInputPanel( SC_labels, (sizeof(SC_labels) / ( sizeof( const char * )*2)) );
-                gtk_widget_hide( panel.widget );
+                panel.widget = createInputPanel(SC_labels, (sizeof(SC_labels) / (sizeof(const char *)*2)));
+                gtk_widget_hide(panel.widget);
                 break;
             case 2:
-                panel.widget = createInputPanel( SC_labels, (sizeof(SC_labels) / ( sizeof( const char * )*2))-1 );
-                gtk_widget_hide( panel.widget );
+                panel.widget = createInputPanel(SC_labels, (sizeof(SC_labels) / (sizeof(const char *)*2))-1);
+                gtk_widget_hide(panel.widget);
                 break;
             case 3:
-                panel.widget = createInputPanel( DO_labels, (sizeof(DO_labels) / ( sizeof( const char * )*2)) );
-                gtk_widget_hide( panel.widget );
+                panel.widget = createInputPanel(DO_labels, (sizeof(DO_labels) / (sizeof(const char *)*2)));
+                gtk_widget_hide(panel.widget);
                 break;
             case 4:
-                panel.widget = createInputPanel( DO_labels, (sizeof(DO_labels) / ( sizeof( const char * )*2)) );
-                gtk_widget_hide( panel.widget );
+                panel.widget = createInputPanel(DO_labels, (sizeof(DO_labels) / (sizeof(const char *)*2)));
+                gtk_widget_hide(panel.widget);
                 break;
             default:
                 break;
         }
-        gtk_container_add( GTK_CONTAINER( hbox ), panel.widget );
-        widgetList.push_back( panel );
+        gtk_container_add(GTK_CONTAINER(hbox), panel.widget);
+        widgetList.push_back(panel);
     }
-    gtk_widget_show( hbox );
+    gtk_widget_show(hbox);
     return hbox;
 };
 
-static void radioButton_toggled( GtkWidget * button, GtkWidget * widget )
+static void radioButton_toggled(GtkWidget * button, GtkWidget * widget)
 {
-    if( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( button ) ) )
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
     {   /* On */
-        gtk_widget_show( widget );
+        gtk_widget_show(widget);
     }
     else
     {   /* Off */
-        gtk_widget_hide( widget );
+        gtk_widget_hide(widget);
     }
 }
 
-static GtkWidget * createRadioBottun( vector< RadioLinkWidget > & widgetList )
+static GtkWidget * createRadioBottun(vector< RadioLinkWidget > & widgetList)
 {
-    GtkWidget * hbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 0 );
-    gtk_widget_show( hbox );
+    GtkWidget * hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_widget_show(hbox);
 
-    if( 0 < widgetList.size() )
+    if(0 < widgetList.size())
     {
-        GtkWidget * rbt = gtk_radio_button_new_with_label( NULL, widgetList[0].label );
-        g_signal_connect(GTK_TOGGLE_BUTTON( rbt ), "toggled", G_CALLBACK( radioButton_toggled ), widgetList[0].widget );
-        gtk_widget_show( rbt );
-        gtk_container_add( GTK_CONTAINER( hbox ), rbt );
-        for( unsigned int idx = 1; idx < widgetList.size(); idx ++ )
+        GtkWidget * rbt = gtk_radio_button_new_with_label(NULL, widgetList[0].label);
+        g_signal_connect(GTK_TOGGLE_BUTTON(rbt), "toggled", G_CALLBACK(radioButton_toggled), widgetList[0].widget);
+        gtk_widget_show(rbt);
+        gtk_container_add(GTK_CONTAINER(hbox), rbt);
+        for(unsigned int idx = 1; idx < widgetList.size(); idx ++)
         {
-            rbt = gtk_radio_button_new_with_label_from_widget( GTK_RADIO_BUTTON( rbt ), widgetList[idx].label );
-            g_signal_connect( GTK_TOGGLE_BUTTON( rbt ), "toggled", G_CALLBACK( radioButton_toggled ), widgetList[idx].widget );
-            gtk_widget_show( rbt );
-            gtk_container_add( GTK_CONTAINER( hbox ), rbt );
+            rbt = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(rbt), widgetList[idx].label);
+            g_signal_connect(GTK_TOGGLE_BUTTON(rbt), "toggled", G_CALLBACK(radioButton_toggled), widgetList[idx].widget);
+            gtk_widget_show(rbt);
+            gtk_container_add(GTK_CONTAINER(hbox), rbt);
         }
     }
     return hbox;
 }
 
-static GtkWidget * createSensorInputPanel( void )
+static GtkWidget * createSensorInputPanel(void)
 {
-    GtkWidget * vbox = gtk_box_new( GTK_ORIENTATION_VERTICAL, 0 );
+    GtkWidget * vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     vector< RadioLinkWidget > widgetList;
-    GtkWidget * inpPanel = createSensorPanels( widgetList );
-    gtk_container_add( GTK_CONTAINER( vbox ), createRadioBottun( widgetList ) );
-    gtk_container_add( GTK_CONTAINER( vbox ), inpPanel );
+    GtkWidget * inpPanel = createSensorPanels(widgetList);
+    gtk_container_add(GTK_CONTAINER(vbox), createRadioBottun(widgetList));
+    gtk_container_add(GTK_CONTAINER(vbox), inpPanel);
     return vbox;
 }
 
@@ -516,10 +581,15 @@ static bool is_long_touched = false;    // 保存是否为长按事件
 
 /*
  *      鼠标按下事件回调函数
+ *
  * @params
+ *          widget， 响应该回调函数的窗口句柄
+ *          event，  事件
  * @return
+ *          成功返回列表中对应项的索引idx；
+ *          不成功，返回-1；
  */
-gboolean callback_press_event( GtkWidget *widget, GdkEventButton* event )
+gboolean callback_press_event(GtkWidget *widget, GdkEventButton* event)
 {
     static guint                srcid;
     pf_touch_event_t            event_type;
@@ -560,7 +630,7 @@ gboolean callback_press_event( GtkWidget *widget, GdkEventButton* event )
  * @params
  * @return
  */
-// gboolean callback_motion_event( GtkWidget *widget, GdkEventMotion *event )
+// gboolean callback_motion_event(GtkWidget *widget, GdkEventMotion *event)
 // {
 //     static unsigned int         pre_time = 0;
 //     GdkModifierType             state;
@@ -603,9 +673,9 @@ int Simulator::gtkmain(int argc, char* argv[])
     gtk_widget_show(dw);
     gtk_widget_set_size_request(dw, disp.width(), disp.height());
 
-    // g_signal_connect(G_OBJECT(dw), "draw", G_CALLBACK(draw_callback), this);
+    g_signal_connect(G_OBJECT(dw), "draw", G_CALLBACK(draw_callback), this);
     g_signal_connect(G_OBJECT(dw), "button_press_event", G_CALLBACK(callback_press_event), NULL);
-    // g_signal_connect(G_OBJECT(dw), "button_release_event", G_CALLBACK(callback_press_event), NULL);
+    g_signal_connect(G_OBJECT(dw), "button_release_event", G_CALLBACK(callback_press_event), NULL);
     // g_signal_connect(G_OBJECT(dw), "motion_notify_event", G_CALLBACK(callback_motion_event), NULL);
 
     gtk_widget_set_events (dw,
