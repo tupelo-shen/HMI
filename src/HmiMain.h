@@ -9,6 +9,7 @@
 
 #include "Queue-pthread_s.h"
 #include "HmiEvent.h"
+#include "GDC_Driver.h"
 
 class HmiMain {
 public :
@@ -30,6 +31,11 @@ public :
 private :
     void                main(void);
     void                eventHandler(HmiEvent& ev);
+// public:
+//     static void         SendEvent2HMI(pf_touch_event_t            ev,
+//                                         pf_point_t                  pnt,
+//                                         unsigned int                level,
+//                                         pf_drag_flick_direction_t   direc);
 
 private :
     // std::deque<HmiEvent>   deq;

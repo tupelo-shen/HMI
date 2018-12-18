@@ -7,6 +7,14 @@
 #ifndef __HMI_EVENT_H__
 #define __HMI_EVENT_H__
 
+// event种类
+// typedef enum 
+// {
+//     HMI_EV_NONE,
+//     HMI_EV_KEYDOWN,
+//     HMI_EV_MOUSE_PRESSED
+// } HmiEventType;
+
 class HmiEvent
 {
     typedef union _HmiEventParam
@@ -19,12 +27,13 @@ class HmiEvent
         _HmiEventParam(unsigned long ul) {lp = ul;}
     } EHmiEventParam;
 public:
-    typedef enum 
+    typedef enum
     {
         HMI_EV_NONE,
         HMI_EV_KEYDOWN,
-    } HmiEventType;
-
+        HMI_EV_MOUSE_PRESSED
+    }HmiEventType;
+    
 public:
     HmiEvent();
     HmiEvent(HmiEventType ev);

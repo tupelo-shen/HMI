@@ -99,7 +99,46 @@ namespace SimulatorPlatform
         void                        convertColor8to16(unsigned char *color8, 
                                                         unsigned short *color_pal);
         unsigned short*             getRaw();
-        void                        clearRaw();        
+        void                        clearRaw();          
     };
+
+    inline unsigned long BitMapDump::size( void )
+    {
+        return fsize;
+    }
+
+    inline unsigned char * BitMapDump::ptr( void )
+    {
+        return fdata;
+    }
+
+    inline unsigned long BitMapDump::imageSize( void )
+    {
+        return info.sizeImage;
+    }
+
+    inline unsigned char * BitMapDump::image( void ) const
+    {
+        return &( fdata[head.offset] );
+    }
+
+    inline unsigned long BitMapDump::width( void ) const
+    {
+        return info.width;
+    }
+
+    inline unsigned long BitMapDump::height( void ) const
+    {
+        return info.height;
+    }
+
+    inline void BitMapDump::fill( unsigned short data )
+    {
+        unsigned long size = width() * height();
+        for( unsigned long idx = 0; idx < size; idx ++ )
+        {
+            raw[idx] = data;
+        }
+    }
 }
 #endif /* __BMPDUMP_h__ */

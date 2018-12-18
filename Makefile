@@ -5,14 +5,20 @@ SRC_OBJS 	= src/Common.o\
 			src/HmiMain.o\
 			src/Simulator.o\
 			src/GDC_Sim.o\
-			src/BMPDump.o
+			src/BMPDump.o\
+			src/GDC_Driver.o\
+			src/HMIControl.o
 
 GPP 		= g++
-CMNINC 		= -I inc/ -I src/
+CMNINC 		= -I inc/ -I src/ -I $(BOOST_INCLUDE)
 GCCFLAGS 	= -g -Wall `pkg-config --cflags --libs gtk+-3.0`
 GPPFLAGS	:= -g -Wall -std=c++11 `pkg-config --cflags gtk+-3.0` $(CMNINC)
 LDFLAGS		:= `pkg-config --libs gtk+-3.0`
-LIBS 		+= -lboost_system
+LIBS 		+= -L $(BOOST_LIB)\
+				-lboost_regex \
+				-lboost_system \
+				-lboost_filesystem \
+				-lboost_chrono
 
 all: sim
 	@bash --norc -c "date '+%Y%m%d %H:%M %S'"
@@ -26,10 +32,10 @@ Makefile-g++.dep: src/*.cpp Makefile
 
 $(SIMULATOR): main.cpp src/*.h $(SRC_OBJS)
 	@echo "testing..."
-	$(GPP) -o $(SIMULATOR) main.cpp $(SRC_OBJS) $(GPPFLAGS) $(LDFLAGS)
+	$(GPP) -o $(SIMULATOR) main.cpp $(SRC_OBJS) $(GPPFLAGS) $(LDFLAGS) $(LIBS)
 
 src/%.o : src/%.c
-	$(GPP) -c $(GPPFLAGS) -o $@ $< $(LDFLAGS)
+	$(GPP) -c $(GPPFLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
 
 depend: Makefile-g++.dep
 	ls -l *.dep

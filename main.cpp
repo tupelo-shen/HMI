@@ -5,11 +5,8 @@
 #include "HmiMain.h"
 #include "GDC_Sim.h"
 #include "Simulator.h"
+#include "HMIControl.h"
 
-void init(void)
-{
-
-}
 void hmiMain(HmiMain* p_hmi)
 {
     std::cout << "HMI main thread is started!\n";
@@ -47,6 +44,8 @@ void KeyboardScan(HmiMain* p_hmi)
     }
 }
 
+static HMIControl hmi_control;
+
 int main(int argc, char* argv[])
 {
     // int sig = analyzeOptions( argc, argv );
@@ -65,9 +64,10 @@ int main(int argc, char* argv[])
         case 1:
         {
             // Simulator mode
-            // sim.initBmp();
+            sim.initBmp();
             setSim(&sim);
-            HmiMain *p_hmi = new HmiMain();
+            static HmiMain *p_hmi = new HmiMain();
+            hmi_control.setHMI(p_hmi); 
             std::thread hmi_main(hmiMain, p_hmi);
             std::thread kb_scan(KeyboardScan, p_hmi);
             sim.gtkmain(argc, argv);
@@ -116,3 +116,15 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
+// #include <boost/filesystem.hpp>
+
+// int main(void)
+// {
+//     boost::filesystem::path path("/test/test1");
+//     boost::filesystem::path old_cpath = boost::filesystem::current_path();
+//     boost::filesystem::path parent_path = old_cpath.parent_path();
+//     boost::filesystem::path file_path = old_cpath/"file"; //path支持重载/运算符
+    
+//     return 0;
+// }
