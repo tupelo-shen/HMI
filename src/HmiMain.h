@@ -17,7 +17,8 @@ public :
     virtual ~HmiMain();
     
 public :
-    void                Start(void) {main();}
+    virtual void        start(void);
+    void                main(void);    
     bool                IsReady(void) {return(is_ready);}
     void                SetReady(bool ready) {is_ready = ready;}
     // std::mutex& Mutex(void) {return(mtx);}
@@ -27,15 +28,10 @@ public :
     void                AddEventQueue(HmiEvent ev) {q_events.push(ev);}
     bool                GetEventQueue(HmiEvent& ev) {return q_events.try_pop(ev);}
     bool                IsEmpty(void) {return q_events.empty();}
-    
-private :
-    void                main(void);
+
+
     void                eventHandler(HmiEvent& ev);
-// public:
-//     static void         SendEvent2HMI(pf_touch_event_t            ev,
-//                                         pf_point_t                  pnt,
-//                                         unsigned int                level,
-//                                         pf_drag_flick_direction_t   direc);
+    int                 registPalette(unsigned char* buf);
 
 private :
     // std::deque<HmiEvent>   deq;

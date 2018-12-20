@@ -20,7 +20,7 @@ namespace SimulatorPlatform
     public:
         virtual void init() 
         {
-            head.type = 0x424d;
+            head.type = 0x424d;     // 'BM',Windows支持的位图格式
             head.size = sizeof(head) + sizeof(info) + 204800 * 2;//76800 * 8;
             head.reserved1 = 0;
             head.reserved2 = 0;

@@ -10,7 +10,7 @@
 void hmiMain(HmiMain* p_hmi)
 {
     std::cout << "HMI main thread is started!\n";
-    p_hmi->Start();
+    p_hmi->start();
 }
 
 void KeyboardScan(HmiMain* p_hmi)

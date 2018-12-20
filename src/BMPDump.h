@@ -9,30 +9,43 @@
 
 namespace SimulatorPlatform
 {
+    /*
+     *      | 数据段名称 | Windows结构体定义  | 大小（Byte）      |
+     *      | bmp文件头  | BITMAPFILEHEADER  |     14          |
+     *      | 位图信息头 | BITMAPINFOHEADER  |     40          |
+     *      | 调色板     | ----------------  | 由颜色索引数决定 |
+     *      | 位图数据   | ----------------  | 由图像尺寸决定   |
+     *
+     *    说明：
+     *          1. bmp文件数据存储方式是以小端模式（little endian）
+     */
     class BitMapDump
     {
     private:
-        typedef struct FormatHeaser
+        // bmp文件头结构体定义，共14个字节大小
+        typedef struct FormatHeader
         {
-            unsigned short type;
-            unsigned long  size;
-            unsigned short reserved1;
-            unsigned short reserved2;
-            unsigned long  offset;
-        } Heaser;
+            unsigned short type;            /* 文件类型 */
+            unsigned long  size;            /* 文件大小，单位是字节 */
+            unsigned short reserved1;       /* 保留1 */
+            unsigned short reserved2;       /* 保留2 */
+            unsigned long  offset;          /* 从文件头到实际的图像数据之间的偏移量，单位是字节 */
+        } Header;
+
+        // bmp文件信息头结构体定义
         typedef struct BitmapInfomation
         {
-            unsigned long  size;
-            unsigned long  width;
-            unsigned long  height;
-            unsigned short planes;
-            unsigned short bitCount;
-            unsigned long  compression;
-            unsigned long  sizeImage;
-            unsigned long  biXPixPerMeter;
-            unsigned long  biYPixPerMeter;
-            unsigned long  biClrUsed;
-            unsigned long  biCirImportant;
+            unsigned long  size;            /* 结构体自身需要的字节数 */
+            unsigned long  width;           /* 说明图像的宽度，用像素为单位 */
+            unsigned long  height;          /* 说明图像的高度，用像素为单位 */
+            unsigned short planes;          /* 说明颜色平面数，其值总是设为1 */
+            unsigned short bitCount;        /* 说明比特数/像素，其值为1、4、8、16、24、32 */
+            unsigned long  compression;     /* 说明图像数据压缩的类型 */
+            unsigned long  sizeImage;       /* 说明图像大小，BI_RGB格式时，可设置为0 */
+            unsigned long  biXPixPerMeter;  /* 水平分辨率 */
+            unsigned long  biYPixPerMeter;  /* 垂直分辨率 */
+            unsigned long  biClrUsed;       /* 颜色索引数 */
+            unsigned long  biCirImportant;  /* 颜色索引数的重要性。0，表示都重要 */
         } BitmapInfo;
         
     protected:
@@ -49,7 +62,7 @@ namespace SimulatorPlatform
         /**
         * Windows bitmap file format header
         */
-        Heaser              head;                   /* header   */
+        Header              head;                   /* header   */
 
         /**
         * Windows birmap file infomation

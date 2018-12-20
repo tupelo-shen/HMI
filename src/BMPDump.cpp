@@ -16,82 +16,82 @@ typedef struct
     unsigned long   size;
 } TableList;
 
-BitMapDump::BitMapDump( void ): fsize(0), fdata(0), raw(0), raw24bit(0), raw24bit2(0)
+BitMapDump::BitMapDump(void): fsize(0), fdata(0), raw(0), raw24bit(0), raw24bit2(0)
 {
 }
 
-BitMapDump::~BitMapDump( void )
+BitMapDump::~BitMapDump(void)
 {
-    if( 0 != fdata )
+    if(0 != fdata)
     {
         delete [] fdata;
         fdata = 0;
     }
-    if( 0 != raw )
+    if(0 != raw)
     {
         delete [] raw;
         raw = 0;
     }
-    if( 0 != raw24bit )
+    if(0 != raw24bit)
     {
         delete [] raw24bit;
         raw24bit = 0;
     }
-    if( 0 != raw24bit2 )
+    if(0 != raw24bit2)
     {
         delete [] raw24bit2;
         raw24bit2 = 0;
     }
 }
 
-BitMapDump& BitMapDump::operator=( const BitMapDump & org )
+BitMapDump& BitMapDump::operator=(const BitMapDump & org)
 {
-    if( 0 != fdata )
+    if(0 != fdata)
     {
         delete [] fdata;
         fdata = 0;
     }
-    if( 0 != raw )
+    if(0 != raw)
     {
         delete [] raw;
         raw = 0;
     }
-    if( 0 != raw24bit )
+    if(0 != raw24bit)
     {
         delete [] raw24bit;
         raw24bit = 0;
     }
-    if( 0 != raw24bit2 )
+    if(0 != raw24bit2)
     {
         delete [] raw24bit2;
         raw24bit2 = 0;
     }
     fsize = org.fsize;
     fdata = new unsigned char [fsize];
-    memcpy( fdata, org.fdata, fsize );
-    memcpy( &(head), &(org.head), sizeof(head) );
-    memcpy( &(info), &(org.info), sizeof(info) );
+    memcpy(fdata, org.fdata, fsize);
+    memcpy(&(head), &(org.head), sizeof(head));
+    memcpy(&(info), &(org.info), sizeof(info));
     raw = new unsigned short [width() * height()];
-    memcpy( raw,  org.raw, (sizeof(unsigned short) * width() * height()) );
+    memcpy(raw,  org.raw, (sizeof(unsigned short) * width() * height()));
     return *this;
 }
 
-void BitMapDump::loadFile( const char * fname )
+void BitMapDump::loadFile(const char * fname)
 {
-    const filesystem::path path( fname );
+    const filesystem::path path(fname);
     try
     {
-        fsize = file_size( path );
+        fsize = file_size(path);
         fdata = new unsigned char [fsize];
-        ifstream fin( fname, ios::in | ios::binary );
-        if( fin )
+        ifstream fin(fname, ios::in | ios::binary);
+        if(fin)
         {
-            fin.read( ( char * )fdata, fsize );
+            fin.read((char *)fdata, fsize);
             makeTable();
             createRawData();
         }
     }
-    catch ( filesystem::filesystem_error & exp )
+    catch (filesystem::filesystem_error & exp)
     {
         fsize   = 0;
         fdata   = 0;
@@ -104,7 +104,7 @@ void BitMapDump::loadDat()
   static unsigned short z = 0;
   for(unsigned int i=0; i<height(); i++) {
     for(unsigned int j=0; j<width(); j++) {
-      if( (i / 10) % 2 > 0) {
+      if((i / 10) % 2 > 0) {
         raw[i*width()+j] = 0xF000+z;
       } else {
         raw[i*width()+j] = 0X000F+z;
@@ -141,50 +141,50 @@ void BitMapDump::makeTable()
   };
 
   unsigned long offset = 0;
-  for( unsigned long idx = 0; idx < (sizeof(headerTable) / sizeof(TableList)); idx ++ )
+  for(unsigned long idx = 0; idx < (sizeof(headerTable) / sizeof(TableList)); idx ++)
   {
-    memcpy( headerTable[idx].dst, &(fdata[offset]), headerTable[idx].size );
+    memcpy(headerTable[idx].dst, &(fdata[offset]), headerTable[idx].size);
     offset += headerTable[idx].size;
   }
 
-  for( unsigned long idx = 0; idx < (sizeof(infoTable) / sizeof(TableList)); idx ++ )
+  for(unsigned long idx = 0; idx < (sizeof(infoTable) / sizeof(TableList)); idx ++)
   {
-    memcpy( infoTable[idx].dst, &(fdata[offset]), infoTable[idx].size );
+    memcpy(infoTable[idx].dst, &(fdata[offset]), infoTable[idx].size);
     offset += infoTable[idx].size;
   }
 }
 
 
-static unsigned short * createtRawDataFrom16bit( unsigned long width, unsigned long height, unsigned char * src )
+static unsigned short * createtRawDataFrom16bit(unsigned long width, unsigned long height, unsigned char * src)
 {
-    unsigned short * raw = new unsigned short [ width * height ];
-    for( unsigned long y = 0; y < height; y ++ )
+    unsigned short * raw = new unsigned short [width * height];
+    for(unsigned long y = 0; y < height; y ++)
     {
-        for( unsigned long x = 0; x < width; x ++ )
+        for(unsigned long x = 0; x < width; x ++)
         {
-            unsigned long src_idx = ( height - 1 - y ) * width * 2 + ( x * 2 );
-            unsigned long data = ( ( static_cast<unsigned short>(src[src_idx+1])<<8) | static_cast<unsigned short>(src[src_idx]) );
+            unsigned long src_idx = (height - 1 - y) * width * 2 + (x * 2);
+            unsigned long data = ((static_cast<unsigned short>(src[src_idx+1])<<8) | static_cast<unsigned short>(src[src_idx]));
             raw[(y*width)+x] = data;
         }
     }
     return raw;
 }
 
-static unsigned short * createtRawDataFrom24bit( unsigned long width, unsigned long height, unsigned char * src )
+static unsigned short * createtRawDataFrom24bit(unsigned long width, unsigned long height, unsigned char * src)
 {
     unsigned short * raw = new unsigned short [width * height];
-    for( unsigned long y = 0; y < height; y ++ )
+    for(unsigned long y = 0; y < height; y ++)
     {
-        for( unsigned long x = 0; x < width; x ++ )
+        for(unsigned long x = 0; x < width; x ++)
         {
             unsigned short data = 0;
-            unsigned long idx = ( ( height - 1 - y ) * width * 3 ) + ( x * 3 );
+            unsigned long idx = ((height - 1 - y) * width * 3) + (x * 3);
             unsigned long r = src[idx + 2];
             unsigned long g = src[idx + 1];
-            unsigned long b = src[idx    ];
-            r = ( r * 31 ) / 255;
-            g = ( g * 63 ) / 255;
-            b = ( b * 31 ) / 255;
+            unsigned long b = src[idx   ];
+            r = (r * 31) / 255;
+            g = (g * 63) / 255;
+            b = (b * 31) / 255;
             data |= (r & 0x001F)<<11;
             data |= (g & 0x003F)<<5;
             data |= (b & 0x001F);
@@ -194,65 +194,77 @@ static unsigned short * createtRawDataFrom24bit( unsigned long width, unsigned l
     return raw;
 }
 
-void BitMapDump::createRawData( void )
+void BitMapDump::createRawData(void)
 {
-    switch( info.bitCount )
+    switch(info.bitCount)
     {
         case 16:
-            raw = createtRawDataFrom16bit( width(), height(), image() );
+            raw = createtRawDataFrom16bit(width(), height(), image());
             break;
         case 24:
-            raw = createtRawDataFrom24bit( width(), height(), image() );
+            raw = createtRawDataFrom24bit(width(), height(), image());
             break;
         default:
             break;
     }
 }
-
-void BitMapDump::convFromRaw( unsigned long y, unsigned long height )
+/*
+ *      将raw原始数据转换为24位原始数据或者24位-2原始数据
+ *
+ * @params
+ *          y， 原始数据的y坐标
+ *          height, 图像的高度
+ * @return
+ *          None。
+ */
+void BitMapDump::convFromRaw(unsigned long y, unsigned long height)
 {
-    if( 0 != raw )
+    if(0 != raw)
     {
-        unsigned long width = this->width();
-        if( 0 == raw24bit )
+        unsigned long width = this->width();    // 得到像素宽度
+        
+        // 如果没有指向24位原始数据区域，则创建一个这样的区域
+        if(0 == raw24bit)   
         {
             unsigned long height= this->height();
-            raw24bit = new unsigned char [ width * height * 3 ];
+            raw24bit = new unsigned char [width * height * 3];
         }
-        if( 0 == raw24bit2 )
+        if(0 == raw24bit2)
         {
             unsigned long height= this->height();
-            raw24bit2 = new unsigned char [ width * height * 3 * 4 ];
+            raw24bit2 = new unsigned char [width * height * 3 * 4];
         }
-        for( ; y < height; y ++ )
-        {
-            for( unsigned long x = 0; x < width; x ++ )
-            {
-                unsigned short data = raw[ ( y * width ) + x ];
-                unsigned long r = ( ( data >> 11) & 0x001F );
-                unsigned long g = ( ( data >>  5) & 0x003F );
-                unsigned long b = ( ( data      ) & 0x001F );
-                r = ( r * 255 ) / 31;
-                g = ( g * 255 ) / 63;
-                b = ( b * 255 ) / 31;
 
-                unsigned long idx = ( ( ( y     )     ) * ( ( width * 3 )     ) ) + ( ( x * 3 )     );
-                raw24bit[idx  ] = r;
+        // 
+        for(; y < height; y ++)
+        {
+            for(unsigned long x = 0; x < width; x ++)
+            {
+                unsigned short data = raw[(y * width) + x];
+                unsigned long r = ((data >> 11) & 0x001F);
+                unsigned long g = ((data >>  5) & 0x003F);
+                unsigned long b = ((data     ) & 0x001F);
+                r = (r * 255) / 31;
+                g = (g * 255) / 63;
+                b = (b * 255) / 31;
+
+                unsigned long idx = (((y    )    ) * ((width * 3)    )) + ((x * 3)    );
+                raw24bit[idx ] = r;
                 raw24bit[idx+1] = g;
                 raw24bit[idx+2] = b;
 
-                idx = ( ( ( y * 2 )     ) * ( ( width * 3 ) * 2 ) ) + ( ( x * 3 ) * 2 );
-                raw24bit2[idx      ] = r;
+                idx = (((y * 2)    ) * ((width * 3) * 2)) + ((x * 3) * 2);
+                raw24bit2[idx     ] = r;
                 raw24bit2[idx   + 1] = g;
                 raw24bit2[idx   + 2] = b;
-                raw24bit2[idx+3    ] = r;
+                raw24bit2[idx+3   ] = r;
                 raw24bit2[idx+3 + 1] = g;
                 raw24bit2[idx+3 + 2] = b;
-                idx = ( ( ( y * 2 ) + 1 ) * ( ( width * 3 ) * 2 ) ) + ( ( x * 3 ) * 2 );
-                raw24bit2[idx      ] = r;
+                idx = (((y * 2) + 1) * ((width * 3) * 2)) + ((x * 3) * 2);
+                raw24bit2[idx     ] = r;
                 raw24bit2[idx   + 1] = g;
                 raw24bit2[idx   + 2] = b;
-                raw24bit2[idx+3    ] = r;
+                raw24bit2[idx+3   ] = r;
                 raw24bit2[idx+3 + 1] = g;
                 raw24bit2[idx+3 + 2] = b;
             }
@@ -260,46 +272,46 @@ void BitMapDump::convFromRaw( unsigned long y, unsigned long height )
     }
 }
 
-void BitMapDump::copyRaw( BitMapDump & org )
+void BitMapDump::copyRaw(BitMapDump & org)
 {
-    memcpy( raw,  org.raw, (sizeof(unsigned short) * width() * height()) );
+    memcpy(raw,  org.raw, (sizeof(unsigned short) * width() * height()));
 }
 
-void BitMapDump::mkFileImage( void )
+void BitMapDump::mkFileImage(void)
 {
     unsigned char * dst = image();
     unsigned long height = this->height();
     unsigned long width  = this->width();
-    for( unsigned long y = 0; y < height; y ++ )
+    for(unsigned long y = 0; y < height; y ++)
     {
-        for( unsigned long x = 0; x < width; x ++ )
+        for(unsigned long x = 0; x < width; x ++)
         {
             unsigned long data = raw[(y*width)+x];
-            unsigned long idx = (( ( height - 1 ) - y ) * ( width * 2 ) ) + ( x * 2 );
-            dst[idx+1] = static_cast<unsigned char>( data >> 8 );
-            dst[idx  ] = static_cast<unsigned char>( data & 0x00ff );
+            unsigned long idx = (((height - 1) - y) * (width * 2)) + (x * 2);
+            dst[idx+1] = static_cast<unsigned char>(data >> 8);
+            dst[idx ] = static_cast<unsigned char>(data & 0x00ff);
         }
     }
 }
 
-unsigned char * BitMapDump::get24BitRawData( void )
+unsigned char * BitMapDump::get24BitRawData(void)
 {
-    if( 0 == raw24bit )
+    if(0 == raw24bit)
     {
-        convFromRaw( 0, this->height() );
+        convFromRaw(0, this->height());
     }
     return raw24bit;
 }
 
-unsigned char * BitMapDump::get24BitRawData2( void )
+unsigned char * BitMapDump::get24BitRawData2(void)
 {
-  if(raw24bit2 != NULL) {
-    delete [] raw24bit2;
+    if(raw24bit2 != NULL) {
+        delete [] raw24bit2;
         raw24bit2 = 0;
-  }
-    if( 0 == raw24bit2 )
+    }
+    if(0 == raw24bit2)
     {
-        convFromRaw( 0, this->height() );
+        convFromRaw(0, this->height());
     }
     return raw24bit2;
 }
@@ -318,7 +330,7 @@ void BitMapDump::convertColor8to16(unsigned char *color8, unsigned short *color_
     }
 }
 
-unsigned long rgb16_to_rgb32( unsigned short a )
+unsigned long rgb16_to_rgb32(unsigned short a)
 {
     /* 1. Extract the red, green and blue values */
     /* from rrrr rggg gggb bbbb */
@@ -345,7 +357,7 @@ unsigned long rgb16_to_rgb32( unsigned short a )
 }
 
 
-void BitMapDump::print( void ) const
+void BitMapDump::print(void) const
 {
     std::ios::fmtflags flagsSaved = std::cout.flags();
 
@@ -373,22 +385,22 @@ void BitMapDump::print( void ) const
     cout << "info.biCirImportant = " << info.biCirImportant << endl;
 
     cout << std::hex << std::setfill('0') << std::setw(8) ;
-    cout << "image()   = 0x" << reinterpret_cast< unsigned long >( image() ) << endl;
+    cout << "image()   = 0x" << reinterpret_cast< unsigned long >(image()) << endl;
 
     unsigned char * bmp = this->image();
     cout << std::setw(2);
-    for( unsigned long idx = 0; idx < info.sizeImage; idx ++ )
+    for(unsigned long idx = 0; idx < info.sizeImage; idx ++)
     {
-        if( 0 == ( idx % 16 ) )
+        if(0 == (idx % 16))
         {
             cout << std::setw(8)  << idx << ":";
         }
         cout << std::setw(2) << static_cast<int>(bmp[idx]) << " ";
-        if( 7 == ( idx % 16 ) )
+        if(7 == (idx % 16))
         {
             cout << " ";
         }
-        if( 15 == ( idx % 16 ) )
+        if(15 == (idx % 16))
         {
             cout << endl;
         }

@@ -4,10 +4,15 @@ SRC_OBJS 	= src/Common.o\
 			src/HmiEvent.o\
 			src/HmiMain.o\
 			src/Simulator.o\
+			src/GDC_Common.o\
 			src/GDC_Sim.o\
 			src/BMPDump.o\
 			src/GDC_Driver.o\
-			src/HMIControl.o
+			src/HMIControl.o\
+			src/DrawCommand.o\
+			src/FontInfo.o\
+			src/HMI_Resource.o
+TEST_OBJS	= src/test_Simulator.o
 
 GPP 		= g++
 CMNINC 		= -I inc/ -I src/ -I $(BOOST_INCLUDE)
@@ -30,9 +35,9 @@ sim: $(SIMULATOR) Makefile-g++.dep
 Makefile-g++.dep: src/*.cpp Makefile
 	@g++  $(CMNINC) src/*.cpp    | sed -e 's/^\([^ ]\)/src\/\1/' > $@
 
-$(SIMULATOR): main.cpp src/*.h $(SRC_OBJS)
+$(SIMULATOR): main.cpp src/*.h $(SRC_OBJS) $(TEST_OBJS)
 	@echo "testing..."
-	$(GPP) -o $(SIMULATOR) main.cpp $(SRC_OBJS) $(GPPFLAGS) $(LDFLAGS) $(LIBS)
+	$(GPP) -o $(SIMULATOR) main.cpp $(SRC_OBJS) $(TEST_OBJS) $(GPPFLAGS) $(LDFLAGS) $(LIBS)
 
 src/%.o : src/%.c
 	$(GPP) -c $(GPPFLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
