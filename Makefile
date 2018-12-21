@@ -17,13 +17,14 @@ TEST_OBJS	= src/test_Simulator.o
 GPP 		= g++
 CMNINC 		= -I inc/ -I src/ -I $(BOOST_INCLUDE)
 GCCFLAGS 	= -g -Wall `pkg-config --cflags --libs gtk+-3.0`
-GPPFLAGS	:= -g -Wall -std=c++11 `pkg-config --cflags gtk+-3.0` $(CMNINC)
-LDFLAGS		:= `pkg-config --libs gtk+-3.0`
+GPPFLAGS	:= -g -Wall -std=c++11 `pkg-config --cflags --libs gtk+-3.0` $(CMNINC)
+LDFLAGS		=
 LIBS 		+= -L $(BOOST_LIB)\
 				-lboost_regex \
 				-lboost_system \
 				-lboost_filesystem \
-				-lboost_chrono
+				-lboost_chrono\
+				-L $(GTK_LIB)
 
 all: sim
 	@bash --norc -c "date '+%Y%m%d %H:%M %S'"
@@ -36,7 +37,7 @@ Makefile-g++.dep: src/*.cpp Makefile
 	@g++  $(CMNINC) src/*.cpp    | sed -e 's/^\([^ ]\)/src\/\1/' > $@
 
 $(SIMULATOR): main.cpp src/*.h $(SRC_OBJS) $(TEST_OBJS)
-	@echo "testing..."
+	@echo "making..."
 	$(GPP) -o $(SIMULATOR) main.cpp $(SRC_OBJS) $(TEST_OBJS) $(GPPFLAGS) $(LDFLAGS) $(LIBS)
 
 src/%.o : src/%.c

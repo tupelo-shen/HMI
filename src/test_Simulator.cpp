@@ -890,14 +890,14 @@ void test_transparent()
 
 void test_draw() {
     sleep(3);
-    test_draw_8bit(0x01);
+    test_draw_8bit(0x01);           // 0x01-红色
     test_draw_font(0x02, 0x03);
     sleep(1);
-    test_draw_string();
+    // test_draw_string();
     test_draw_fill_rect(0x03);
     test_flip();
     sleep(1);
-    test_draw_8bit(0x02);
+    test_draw_8bit(0x02);           // 0x02-蓝色
     sleep(1);
     test_draw_font(0x01, 0x03);
     sleep(1);

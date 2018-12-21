@@ -54,6 +54,9 @@ void HmiMain::start(void)
 #if 1   /* for testing simulator */
     test_main();
 #endif
+#if 1
+    test_draw();
+#endif
     main();
 }
 

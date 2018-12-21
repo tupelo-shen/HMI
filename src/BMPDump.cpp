@@ -303,6 +303,14 @@ unsigned char * BitMapDump::get24BitRawData(void)
     return raw24bit;
 }
 
+/*
+ *      得到24位原始数据
+ *
+ * @params
+ *          void
+ * @return
+ *          返回数据的地址
+ */
 unsigned char * BitMapDump::get24BitRawData2(void)
 {
     if(raw24bit2 != NULL) {

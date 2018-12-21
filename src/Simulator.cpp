@@ -245,7 +245,7 @@ static gboolean draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 
     if(app.getBmp()->get24BitRawData2() != NULL)
     {
-        printf("***<for test>***\n");
+        // printf("***<for test>***\n");
         GdkPixbuf* pixbuf = 0;
         pixbuf = gdk_pixbuf_new_from_data(app.getBmp()->get24BitRawData2(),
                                 GDK_COLORSPACE_RGB,                                 /* RGB-colorspace */

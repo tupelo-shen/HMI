@@ -496,7 +496,7 @@ void SetColorPaletteDataR(unsigned short dat)
     if( (r != 0x1f) && ((dat & 0x04) != 0) ) {
         r++;
     }
-    menu_color_pal_data = ( ( menu_color_pal_data & ~(0xF800) ) | (r << 11) );
+    menu_color_pal_data = ((menu_color_pal_data & ~(0xF800)) | (r << 11));
 }
 
 void SetColorPaletteDataG(unsigned short dat) 
