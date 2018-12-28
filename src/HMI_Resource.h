@@ -19,6 +19,12 @@
 #define SC_BIN_HEAD_SIZE        (7*4)
 #define SC_PALETTE_DATA_SIZE    (2048)      // 256色*4(makeRegistColor command数)*2Palette
 
+#define SC_MAX_PICTURE_NUM      (300)
+#define SC_MAX_CHAR_NUM         (65536)
+#define SC_MAX_STR_NUM          (3000)      // provisional definition
+#define SC_MAX_STR_LENGTH       (60)        // provisional definition
+#define SC_MAX_FONT_NUM         (6)
+
 enum {
     OFFSET_PICTURE,
     OFFSET_PICTURE_CMD,
@@ -29,7 +35,21 @@ enum {
     OFFSET_PALETTE,
 };
 
+typedef struct _sc_pict_info_str {
+    unsigned short  width;
+    unsigned short  height;
+} SCPICTINFO;
+
+typedef struct _sc_font_info_str {
+  unsigned int  f_width;
+  unsigned int  f_height;
+  unsigned char width[SC_MAX_CHAR_NUM];
+} SCFONTINFO;
+
 unsigned long*          sc_getHmiHeap(unsigned long* size);
 unsigned int*           sc_getBinOffset(void);
-
+int                     sc_getFontNum();
+SCFONTINFO*             sc_getFontInfo();
+unsigned short          sc_getPictWidth(int pict_id);
+void                    sc_getFixedString(int target_ID, unsigned short* str);
 #endif /* __HMI_RESOURCE_H__ */

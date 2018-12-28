@@ -116,42 +116,42 @@ void BitMapDump::loadDat()
 
 void BitMapDump::makeTable()
 {
-  TableList headerTable[] = 
-  {
-    { reinterpret_cast<char*>(&(head.type)),        sizeof(head.type)       },
-    { reinterpret_cast<char*>(&(head.size)),        sizeof(head.size)       },
-    { reinterpret_cast<char*>(&(head.reserved1)),   sizeof(head.reserved1)  },
-    { reinterpret_cast<char*>(&(head.reserved2)),   sizeof(head.reserved2)  },
-    { reinterpret_cast<char*>(&(head.offset)),      sizeof(head.offset)     }
-  };
+    TableList headerTable[] = 
+    {
+        { reinterpret_cast<char*>(&(head.type)),        sizeof(head.type)       },
+        { reinterpret_cast<char*>(&(head.size)),        sizeof(head.size)       },
+        { reinterpret_cast<char*>(&(head.reserved1)),   sizeof(head.reserved1)  },
+        { reinterpret_cast<char*>(&(head.reserved2)),   sizeof(head.reserved2)  },
+        { reinterpret_cast<char*>(&(head.offset)),      sizeof(head.offset)     }
+    };
 
-  TableList infoTable[] = 
-  {
-    { reinterpret_cast<char*>(&(info.size)),            sizeof(info.size)           },
-    { reinterpret_cast<char*>(&(info.width)),           sizeof(info.width)          },
-    { reinterpret_cast<char*>(&(info.height)),          sizeof(info.height)         },
-    { reinterpret_cast<char*>(&(info.planes)),          sizeof(info.planes)         },
-    { reinterpret_cast<char*>(&(info.bitCount)),        sizeof(info.bitCount)       },
-    { reinterpret_cast<char*>(&(info.compression)),     sizeof(info.compression)    },
-    { reinterpret_cast<char*>(&(info.sizeImage)),       sizeof(info.sizeImage)      },
-    { reinterpret_cast<char*>(&(info.biXPixPerMeter)),  sizeof(info.biXPixPerMeter) },
-    { reinterpret_cast<char*>(&(info.biYPixPerMeter)),  sizeof(info.biYPixPerMeter) },
-    { reinterpret_cast<char*>(&(info.biClrUsed)),       sizeof(info.biClrUsed)      },
-    { reinterpret_cast<char*>(&(info.biCirImportant)),  sizeof(info.biCirImportant) }
-  };
+    TableList infoTable[] = 
+    {
+        { reinterpret_cast<char*>(&(info.size)),            sizeof(info.size)           },
+        { reinterpret_cast<char*>(&(info.width)),           sizeof(info.width)          },
+        { reinterpret_cast<char*>(&(info.height)),          sizeof(info.height)         },
+        { reinterpret_cast<char*>(&(info.planes)),          sizeof(info.planes)         },
+        { reinterpret_cast<char*>(&(info.bitCount)),        sizeof(info.bitCount)       },
+        { reinterpret_cast<char*>(&(info.compression)),     sizeof(info.compression)    },
+        { reinterpret_cast<char*>(&(info.sizeImage)),       sizeof(info.sizeImage)      },
+        { reinterpret_cast<char*>(&(info.biXPixPerMeter)),  sizeof(info.biXPixPerMeter) },
+        { reinterpret_cast<char*>(&(info.biYPixPerMeter)),  sizeof(info.biYPixPerMeter) },
+        { reinterpret_cast<char*>(&(info.biClrUsed)),       sizeof(info.biClrUsed)      },
+        { reinterpret_cast<char*>(&(info.biCirImportant)),  sizeof(info.biCirImportant) }
+    };
 
-  unsigned long offset = 0;
-  for(unsigned long idx = 0; idx < (sizeof(headerTable) / sizeof(TableList)); idx ++)
-  {
-    memcpy(headerTable[idx].dst, &(fdata[offset]), headerTable[idx].size);
-    offset += headerTable[idx].size;
-  }
+    unsigned long offset = 0;
+    for(unsigned long idx = 0; idx < (sizeof(headerTable) / sizeof(TableList)); idx ++)
+    {
+        memcpy(headerTable[idx].dst, &(fdata[offset]), headerTable[idx].size);
+        offset += headerTable[idx].size;
+    }
 
-  for(unsigned long idx = 0; idx < (sizeof(infoTable) / sizeof(TableList)); idx ++)
-  {
-    memcpy(infoTable[idx].dst, &(fdata[offset]), infoTable[idx].size);
-    offset += infoTable[idx].size;
-  }
+    for(unsigned long idx = 0; idx < (sizeof(infoTable) / sizeof(TableList)); idx ++)
+    {
+        memcpy(infoTable[idx].dst, &(fdata[offset]), infoTable[idx].size);
+        offset += infoTable[idx].size;
+    }
 }
 
 

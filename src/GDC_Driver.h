@@ -41,8 +41,8 @@ typedef struct
 #define  COM_MENU_DEST_LOC_OFFSET2_NO   0x0B    /**< Com No.0B: 菜单绘图BitBlt传输目标坐标设置偏移地址2 */
 #define  COM_MENU_DEST_LOC_OFFSET1_NO   0x0C    /**< Com No.0C: 菜单绘图BitBlt传输目标坐标设置偏移地址1 */
 #define  COM_MENU_DEST_LOC_OFFSET0_NO   0x0D    /**< Com No.0D: 菜单绘图BitBlt传输目标坐标设置偏移地址0 */
-#define  COM_MENU_DEST_LOC_Y_NO         0x0E    /**< Com No.0E: 菜单绘图BitBlt传输目标坐标设置传输目标Y坐标 */
-#define  COM_MENU_DEST_LOC_X_NO         0x0F    /**< Com No.0F: 菜单绘图BitBlt传输目标坐标设置传输目标X坐标 */
+#define  COM_MENU_DEST_LOC_Y_NO         0x0E    /**< Com No.0E: 菜单绘图BitBlt传输目标坐标设置-Y坐标 */
+#define  COM_MENU_DEST_LOC_X_NO         0x0F    /**< Com No.0F: 菜单绘图BitBlt传输目标坐标设置-X坐标 */
 #define  COM_MENU_TRNSF_AREA_WIDTH_NO   0x10    /**< Com No.10: 菜单绘图BitBlt传输数据区设置传输数据区（宽度）(width) */
 #define  COM_MENU_TRNSF_AREA_HEIGHT_NO  0x11    /**< Com No.11: 菜单绘图BitBlt传输数据区设置传输数据区（高度）(height) */
 #define  COM_GDC_INT_NO                 0x12    /**< Com No.12: 菜单绘图中断标志 */

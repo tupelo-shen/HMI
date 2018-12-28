@@ -292,10 +292,10 @@ void RectString(unsigned short dat)
 
 /******************************************************************************/
 /*!
-\brief    Short型値のビット数を返す
-\details  <http://www.nminoru.jp/~nminoru/programming/bitcount.html>
-\param[in] Short型数値
-\return   Short型値のビット数
+\brief      返回short型值的位数
+\details    <http://www.nminoru.jp/~nminoru/programming/bitcount.html>
+\param[in]  short型值
+\return     short型值的位数
 *******************************************************************************/
 static int num_bits_short(unsigned short bits)
 {
@@ -312,12 +312,13 @@ static void SetShortLower(unsigned short &dat, unsigned short set)
 {
   dat = ( dat & ~(0x00FF) ) | set;
 }
+
 /******************************************************************************/
 /*!
-\brief    设置执行寄存器
-\details  设置多位或0位时，设置无效。
-\param[in] 绘图执行命令
-\return   成功/失败
+\brief      设置执行寄存器
+\details    设置多位或0位时，设置无效。
+\param[in]  绘图执行命令
+\return     成功/失败
 *******************************************************************************/
 void SetMenuExecute(unsigned short code) 
 {

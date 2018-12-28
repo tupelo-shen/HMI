@@ -245,13 +245,12 @@ static gboolean draw_callback(GtkWidget* widget, cairo_t* cr, gpointer data)
 
     if(app.getBmp()->get24BitRawData2() != NULL)
     {
-        // printf("***<for test>***\n");
         GdkPixbuf* pixbuf = 0;
-        pixbuf = gdk_pixbuf_new_from_data(app.getBmp()->get24BitRawData2(),
-                                GDK_COLORSPACE_RGB,                                 /* RGB-colorspace */
-                                FALSE,                                              /* No alpha-channel */
-                                8,                                                  /* Bits per RGB-component */
-                                app.getBmp()->width()*2, app.getBmp()->height()*2,  /* Dimensions */
+        pixbuf = gdk_pixbuf_new_from_data(app.getBmp()->get24BitRawData2(),         /* 8位/样本压缩格式的图像数据 */
+                                GDK_COLORSPACE_RGB,                                 /* 用于图像数据的色彩空间 */
+                                FALSE,                                              /* 数据是否具有不透明度通道 */
+                                8,                                                  /* RGB分量使用8位表示 */
+                                app.getBmp()->width()*2, app.getBmp()->height()*2,  /* 图像的宽度和高度，必须大于0 */
                                 3 * app.getBmp()->width()*2,                        /* Number of bytes between lines (ie stride) */  
                                 NULL, NULL);                                        /* 回调函数 */
         if(0 != pixbuf)

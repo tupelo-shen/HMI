@@ -11,7 +11,14 @@ SRC_OBJS 	= src/Common.o\
 			src/HMIControl.o\
 			src/DrawCommand.o\
 			src/FontInfo.o\
-			src/HMI_Resource.o
+			src/HMI_Resource.o\
+			src/HMI_Alloc.o\
+			src/sclDrawCom.o\
+			src/sclUtil.o\
+			src/sclCore.o\
+			src/sclBoard.o\
+			src/sclParts.o
+
 TEST_OBJS	= src/test_Simulator.o
 
 GPP 		= g++

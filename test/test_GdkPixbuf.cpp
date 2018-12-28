@@ -3,21 +3,23 @@
 
 void  set_pixel_value(GdkPixbuf *pixbuf, int x, int y, int color)
 {
-     guchar *pixel;
-     guchar *p;
-     gint channel;
-     gint rowstride;
+    guchar *pixel;
+    guchar *p;
+    gint channel;
+    gint rowstride;
 
-     if(!pixbuf)   return ;
+    if(!pixbuf)   return ;
 
-     channel = gdk_pixbuf_get_n_channels(pixbuf);
-     rowstride = gdk_pixbuf_get_rowstride(pixbuf);
-     pixel = gdk_pixbuf_get_pixels(pixbuf);
-     p = pixel+y*rowstride+x*channel;
+    channel = gdk_pixbuf_get_n_channels(pixbuf);
+    rowstride = gdk_pixbuf_get_rowstride(pixbuf);
+    pixel = gdk_pixbuf_get_pixels(pixbuf);
+    p = pixel+y*rowstride+x*channel;
 
-     p[0] = (color & 0xFF000000) >>24;
-     p[1] = (color & 0x00FF0000) >>16;
-     p[2] = (color & 0x0000FF00) >>8;
+    printf("channel = %d; rowstride = %d\n", (int)channel, (int) rowstride);
+    
+    p[0] = (color & 0xFF000000) >>24;
+    p[1] = (color & 0x00FF0000) >>16;
+    p[2] = (color & 0x0000FF00) >>8;
 }
 
 // 输出矩形框到pixbuf中

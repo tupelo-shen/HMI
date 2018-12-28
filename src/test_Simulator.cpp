@@ -642,10 +642,10 @@ void test_draw_8bit(unsigned char color)
     PF_GDC_DRV_SetMenuCommand(cmds_1, sizeof(cmds_1) / sizeof(cmds_1[0]));
     PF_GDC_DRV_FlushMenuCommand();
 
-    for(unsigned short i=0; i<200; i++) {
+    for(unsigned short i=0; i<100; i++) {
         unsigned short cmds_2[] = {
-            (0x0E << 10) | (0x02+i),
-            (0x0F << 10) | (0x01+i),
+            static_cast<unsigned short>((0x0E << 10) | (0x02+i)),
+            static_cast<unsigned short>((0x0F << 10) | (0x01+i)),
             (0x01 << 10) | (0x02)
         };
         PF_GDC_DRV_SetMenuCommand(cmds_2, sizeof(cmds_2) / sizeof(cmds_2[0]));
@@ -723,8 +723,8 @@ void test_draw_font(unsigned char back_color, unsigned char fore_color)
     RegistFont(1, VramAddr(0, 0x0101+0x0001), size, 0, (unsigned int)char_code_width);
 
     unsigned short cmds_3[] = {
-        (0x04 << 10) | (back_color),
-        (0x05 << 10) | (fore_color),
+        static_cast<unsigned short>((0x04 << 10) | (back_color)),
+        static_cast<unsigned short>((0x05 << 10) | (fore_color)),
         (0x13 << 10) | (0x00),
         (0x14 << 10) | (0x00),
         (0x15 << 10) | (0x00),
@@ -803,7 +803,7 @@ void test_draw_string()
 void test_draw_fill_rect(unsigned char color)
 {
     unsigned short cmds_1[] = {
-        (0x04 << 10) | color,
+        static_cast<unsigned short>((0x04 << 10) | color),
         (0x0B << 10) | (0x00),
         (0x0C << 10) | (0x00),
         (0x0D << 10) | (0x00),

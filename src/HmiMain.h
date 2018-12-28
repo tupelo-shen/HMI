@@ -33,13 +33,16 @@ public :
     void                eventHandler(HmiEvent& ev);
     int                 registPalette(unsigned char* buf);
 
+    // static HeapManager* getHMIHeap(void){return (hmi_heap);}
+
 private :
     // std::deque<HmiEvent>   deq;
     // std::mutex              mtx;
     // std::condition_variable cv;
     Queue_s<HmiEvent>   q_events;
     bool                is_ready;
-
+    
+    // static HeapManager* hmi_heap;
 };
 
 #endif /* __HMI_EVENT_H__ */
