@@ -31,7 +31,7 @@ public :
 
 
     void                eventHandler(HmiEvent& ev);
-    int                 registPalette(unsigned char* buf);
+    int                 registPalette(void);
 
     // static HeapManager* getHMIHeap(void){return (hmi_heap);}
 

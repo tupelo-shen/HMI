@@ -8,6 +8,7 @@
 #ifndef __SCL_BOARD_H__
 #define __SCL_BOARD_H__
 
+// #include "sclBase.h"
 #include "sclCore.h"
 
 #define SCBoardScreenIDNONE (-1)

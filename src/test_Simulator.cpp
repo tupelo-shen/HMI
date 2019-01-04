@@ -882,27 +882,46 @@ void test_transparent()
     PF_GDC_DRV_SetTransparentColor(0x10);
     assert(transparent_color == 0x10);
     test_draw_8bit(0x10);
-    test_draw_font(0x02, 0x10);
+    test_draw_font(0x02, 0x01);
     test_draw_fill_rect(0x10);
     
     printf("test_transparent() is tested sucessfully!\n");
 }
 
 void test_draw() {
-    sleep(3);
-    test_draw_8bit(0x01);           // 0x01-红色
-    test_draw_font(0x02, 0x03);
-    sleep(1);
-    // test_draw_string();
-    test_draw_fill_rect(0x03);
-    test_flip();
-    sleep(1);
-    test_draw_8bit(0x02);           // 0x02-蓝色
-    sleep(1);
-    test_draw_font(0x01, 0x03);
-    sleep(1);
-    sleep(1);
+    // sleep(3);
+    // test_draw_8bit(0x01);           // 0x01-红色
+    // test_draw_font(0x02, 0x03);
+    // sleep(1);
+    // // test_draw_string();
+    // test_draw_fill_rect(0x03);
+    // test_flip();
+    // sleep(1);
+    // test_draw_8bit(0x02);           // 0x02-蓝色
+    // sleep(1);
+    // test_draw_font(0x01, 0x03);
+    // sleep(1);
+    // sleep(1);
     test_transparent();
+
+// // void test_draw_fill_rect(unsigned char color)
+// // {
+//     unsigned short cmds_1[] = {
+//         static_cast<unsigned short>((0x04 << 10) | 0x01),
+//         (0x0B << 10) | (0x00),
+//         (0x0C << 10) | (0x00),
+//         (0x0D << 10) | (0x00),
+//         (0x0E << 10) | (0x00),
+//         (0x0F << 10) | (0x00),
+//         (0x10 << 10) | (0x3F),
+//         (0x11 << 10) | (0x0B),
+//         (0x01 << 10) | (0x01),
+//     };
+//     PF_GDC_DRV_SetMenuCommand(cmds_1, sizeof(cmds_1) / sizeof(cmds_1[0]));
+//     PF_GDC_DRV_FlushMenuCommand();
+
     
+//     // printf("test_draw_fill_rect() is tested sucessfully!\n");
+// // }
     printf("test_draw() is tested sucessfully!\n");
 }

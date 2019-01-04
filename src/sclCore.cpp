@@ -7,9 +7,10 @@
 */
 #include <cstddef>
 #include "sclBase.h"
+#include "sclCore.h"
 
 // 设定类信息
-const ClassInfo SCCore::m_classInfo = {"SCCore", SCUpdateTypeNone, 0};
+const ClassInfo SCCore::m_classInfo = {"SCCore", SCUpdateTypeNONE, 0};
 
 SCCore::SCCore(
     const unsigned short x,

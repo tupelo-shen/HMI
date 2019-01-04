@@ -1,10 +1,9 @@
-// Copyright (c) 2016 Yokogawa Electric Corporation. All rights reserved.
 /**
-* @file sclParts.h
-* SCPartsクラスヘッダ
+* @file     sclParts.h
+*           SCParts 头文件
 *
-* @author   A.Kubota
-* @version  R1.01.01    2016/03/07  A.Kubota    New
+* @author   Tupelo
+* @version  V1.01.01    2018/12/29
 */
 
 #ifndef _SCL_PARTS_H_
@@ -18,7 +17,7 @@
 
 
 /*
- * Partsクラス用定義
+ * Parts 类定义使用
  */
 enum {
     SC_PARTS_FONT_TYPE_LFONT,   // = SC_FONT_TYPE_L(0)
@@ -35,12 +34,12 @@ enum {
 };
 
 
-// 相互参照
+// 相互引用
 class SCBoard;
 
 
 /*
- * Partsクラス定義
+ * Parts 类定义
  */
 class SCParts : public SCCore {
     M_DECLARE_RUNTIME(SCParts)
@@ -105,7 +104,7 @@ protected :
     SCParts*        m_next;         // 登録順の次の部品
     SCParts*        m_prev;         // 登録順の前の部品
     SCParts*        m_oTrend;       // 重なっているトレンド部品
-    SCCallback*     m_callback;     // コールバック(リスト)
+    SCCallback*     m_callback;     // 回调函数（list）
     unsigned int    m_work_scr;     // 描画する裏画面
     short           m_id;           // 部品ID(画面内でユニーク)
     bool            m_fVisible;     // 可視

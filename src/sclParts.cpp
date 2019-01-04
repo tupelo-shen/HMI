@@ -1,10 +1,9 @@
-// Copyright (c) 2016 Yokogawa Electric Corporation. All rights reserved.
 /**
-* @file sclParts.cpp
-* SCPartsクラス定義
+* @file     sclParts.cpp
+*           SCParts class定义
 *
-* @author   A.Kubota
-* @version  R1.01.01    2016/02/29  A.Kubota    New
+* @author   Tupelo
+* @version  V1.01.01    2018/12/29
 */
 
 #include "sclBase.h"

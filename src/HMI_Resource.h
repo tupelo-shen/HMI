@@ -17,12 +17,13 @@
 
 #define INIT_MEM_SIZE           (3*1024*1024)   // heap size
 #define SC_BIN_HEAD_SIZE        (7*4)
-#define SC_PALETTE_DATA_SIZE    (2048)      // 256色*4(makeRegistColor command数)*2Palette
-
+#define SC_PALETTE_DATA_SIZE    (2048)          // 256色*4(makeRegistColor command数)*2Palette
+#define SC_MAX_COLOR_NO         (256)           // 注册颜色的数量
+#define SC_PALETTE_PRIMARY_COLOR_NUM  (4)       // 每种颜色要读取的数据数(R,G,B,A)
 #define SC_MAX_PICTURE_NUM      (300)
 #define SC_MAX_CHAR_NUM         (65536)
-#define SC_MAX_STR_NUM          (3000)      // provisional definition
-#define SC_MAX_STR_LENGTH       (60)        // provisional definition
+#define SC_MAX_STR_NUM          (3000)          // provisional definition
+#define SC_MAX_STR_LENGTH       (60)            // provisional definition
 #define SC_MAX_FONT_NUM         (6)
 
 enum {
@@ -41,9 +42,9 @@ typedef struct _sc_pict_info_str {
 } SCPICTINFO;
 
 typedef struct _sc_font_info_str {
-  unsigned int  f_width;
-  unsigned int  f_height;
-  unsigned char width[SC_MAX_CHAR_NUM];
+    unsigned int  f_width;
+    unsigned int  f_height;
+    unsigned char width[SC_MAX_CHAR_NUM];
 } SCFONTINFO;
 
 unsigned long*          sc_getHmiHeap(unsigned long* size);

@@ -15,23 +15,25 @@ SRC_OBJS 	= src/Common.o\
 			src/HMI_Alloc.o\
 			src/sclDrawCom.o\
 			src/sclUtil.o\
+			src/sclBase.o\
 			src/sclCore.o\
 			src/sclBoard.o\
-			src/sclParts.o
+			src/sclParts.o\
+			src/sclCallback.o\
+			src/sclLabel.o
 
 TEST_OBJS	= src/test_Simulator.o
 
 GPP 		= g++
 CMNINC 		= -I inc/ -I src/ -I $(BOOST_INCLUDE)
 GCCFLAGS 	= -g -Wall `pkg-config --cflags --libs gtk+-3.0`
-GPPFLAGS	:= -g -Wall -std=c++11 `pkg-config --cflags --libs gtk+-3.0` $(CMNINC)
+GPPFLAGS	= -g -Wall -std=c++11 `pkg-config --cflags --libs gtk+-3.0` $(CMNINC)
 LDFLAGS		=
 LIBS 		+= -L $(BOOST_LIB)\
 				-lboost_regex \
 				-lboost_system \
 				-lboost_filesystem \
-				-lboost_chrono\
-				-L $(GTK_LIB)
+				-lboost_chrono
 
 all: sim
 	@bash --norc -c "date '+%Y%m%d %H:%M %S'"

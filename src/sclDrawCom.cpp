@@ -1748,7 +1748,7 @@ int     SCDrawCom::makeCom16171819(
     int     command_num = 0;
 
 
-    // パレット番号
+    // Pallete Number
     p_buf[0] = 0x16;
     p_buf[0] = (p_buf[0] << 10) | (unsigned short)pNo;
     if(pType) {

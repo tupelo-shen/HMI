@@ -30,7 +30,9 @@ struct  ClassInfo {
 /*
  * 类Core定义
  */
-class SCCore : public HMIAlloc {
+// class SCCore : public HMIAlloc {
+class SCCore
+{
     M_DECLARE_RUNTIME(SCCore)
 public :
     SCCore(const unsigned short x, const unsigned short y,

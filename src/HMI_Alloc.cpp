@@ -1,13 +1,13 @@
-#include "LiqHMIMain.h"
-#include "HMIAlloc.h"
+#include "HmiMain.h"
+#include "HMI_Alloc.h"
 
 
 void* HMIAlloc::operator new(std::size_t size)
 {
-    return(LiqHMIMain::getHMIHeap()->alloc((unsigned long)size));
+    // return(HmiMain::getHMIHeap()->alloc((unsigned long)size));
 }
 
 void HMIAlloc::operator delete(void* ptr)
 {
-    LiqHMIMain::getHMIHeap()->free(ptr);
+    // HmiMain::getHMIHeap()->free(ptr);
 }

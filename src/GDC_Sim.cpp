@@ -55,7 +55,7 @@ Simulator *getSim()
 
 unsigned int VramAddr(unsigned int x, unsigned y) 
 {
-    return ( x | (y << 9) );
+    return (x | (y << 9));
 }
 
 pf_point_t VramPoint(unsigned int addr) 

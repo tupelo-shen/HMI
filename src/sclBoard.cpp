@@ -7,6 +7,8 @@
 */
 
 #include <cstddef>
+#include <thread>
+#include <chrono>
 #include "GDC_Driver.h"
 // #include "ana_stl/Timer.hpp"
 #include "sclBoard.h"
@@ -229,19 +231,18 @@ void SCBoard::Display(int cmd_num, unsigned short* com) const
     FlushDrawCom(cmd_num, com);
 }
 
-todo
 /****************************************************************************/
 /**
- * @brief   FlushDrawCom関数
- * 作成した描画コマンドのFlush処理
+ * @brief           FlushDrawCom 函数
+ *                  刷新作成的描画命令
  *
- * @author  A.Kubota
- * @date    2016/10/03
+ * @author  
+ * @date    
  *
- * @param[in]       int             cmd_num     作成済みの描画コマンド数
- * @param[in]       unsigned short* cmd         描画コマンド作成バッファ
+ * @param[in]       int             cmd_num     作成的描画命令数量
+ * @param[in]       unsigned short* cmd         作成的描画命令缓冲buffer
  *
- * @return  int     作成された描画コマンド数
+ * @return    
  */
 /****************************************************************************/
 void    SCBoard::FlushDrawCom(
@@ -253,26 +254,44 @@ void    SCBoard::FlushDrawCom(
     int     result_num;
 
 
-    // 描画コマンドをドライバへ
+    // 向驱动程序发送描画命令
     sts = PF_GDC_DRV_SetMenuCommand(cmd, cmd_num);
 
-    if(sts != 0) {
-        // エラー処理
-        Timer::sleep(10);
+    if(sts != 0) 
+    {
+        // 错误处理
+        // Timer::sleep(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Todo: 如果是嵌入式系统，需要自己实现时间处理函数
         PF_GDC_DRV_ClearMenuCommand();
         PF_GDC_DRV_SetMenuCommand(cmd, cmd_num);
     }
 
 
-    // 描画コマンドフラッシュ
+    // Flush 描画命令
     result_num = PF_GDC_DRV_FlushMenuCommand();
 
-    if(result_num != cmd_num) {
-        ;   // エラー処理
+    if(result_num != cmd_num) 
+    {
+        ;   // 错误处理
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           DrawBackground 函数
+ *                  描画背景。
+ *                  思路： 对描画的矩形区域，使用背景色进行填充。如果描画带边框的区域
+ *                  将要描画的区域减去边框所占的宽度后剩余的区域进行特定颜色的填充。
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const SCRect&   area        描画区域
+ * @param[in]       unsigned short* com         描画命令
+ *
+ * @return          int     更新后的描画命令数
+ */
+/****************************************************************************/
 int SCBoard::DrawBackground(
     const SCRect&   area,
     unsigned short* com
@@ -284,39 +303,42 @@ int SCBoard::DrawBackground(
     bool            isDialog = IsDialog();
 
 
-    // 描画コマンド関連の変数初期化
+    // 描画命令相关变量的初始化
     com_pos = com;
     all_com_num = com_num = 0;
 
 
-    // 背景塗りつぶし
-    param.work_scr = SC_UPDATE_WORK;    // 表示プレーン(更新用)指定
-    param.fill = true;                  // 塗りつぶしあり
-    param.back_color = GetBackColor();  // 塗りつぶしの色
-    param.rect = area;                  // 塗りつぶし領域
+    // 背景填充
+    param.work_scr = SC_UPDATE_WORK;    // 指定表示Plane(更新用)
+    param.fill = true;                  // 填充
+    param.back_color = GetBackColor();  // 填充颜色
+    param.rect = area;                  // 填充区域
     param.frame = (area == m_area)? isDialog : false;
-                                        // 枠線 画面(なし)/Dialog(あり)
+                                        // 边框 画面（没有）/Dialog（有）
     param.fore_color = COLOR_GRAY_88;
     com_num = SCDrawCom::makeRect(param, com_pos);
     com_pos += com_num;
     all_com_num += com_num;
 
-    if(param.frame) {
+    if(param.frame) 
+    {
         SCRect  rect = m_area;
 
         rect.x += 1;
         rect.y += 1;
-        if(rect.width > 2) {
+        if(rect.width > 2) 
+        {
             rect.width -= 2;
         }
-        if(rect.height > 2) {
+        if(rect.height > 2) 
+        {
             rect.height -=2;
         }
 
-        param.work_scr = SC_UPDATE_WORK;    // 表示プレーン(更新用)指定
-        param.fill = false;                 // 塗りつぶしなし
-        param.rect = rect;                  // 領域
-        param.frame = true;                 // 枠線 画面(なし)/Dialog(あり)
+        param.work_scr = SC_UPDATE_WORK;    // 指定表示Plane(更新用)
+        param.fill = false;                 // 非填充
+        param.rect = rect;                  // 描画区域
+        param.frame = true;                 // 边框 画面（没有）/Dialog（有）
         param.fore_color = COLOR_GRAY_88;
         com_num = SCDrawCom::makeRect(param, com_pos);
         com_pos += com_num;
@@ -324,38 +346,60 @@ int SCBoard::DrawBackground(
 
     }
 
-
     return(all_com_num);
 }
 
-
-void    SCBoard::Initialize(
-)
+/****************************************************************************/
+/**
+ * @brief           Initialize 函数
+ *                  初始化函数
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       void
+ *
+ * @return          void
+ */
+/****************************************************************************/
+void    SCBoard::Initialize(void)
 {
     SCParts*    target = GetChild();
 
 
     while(target) {
-        // 子部品すべてにInitialize()の要求(ただしリスト派生部品は初期化しない)
-        if(target->IsFamily(M_RUNTIME_TYPE(SCListManager))) {
-            // do nothing;
-        }
-        else {
-            target->Initialize();
-        }
-
+        // 调用所有子部品的Initialize（）函数，对其进行初始化。但是对于List派生部品，没有初始化。
+        // if(target->IsFamily(M_RUNTIME_TYPE(SCListManager))) 
+        // {
+        //     // do nothing;
+        // }
+        // else {
+        //     target->Initialize();
+        // }
+        target->Initialize();
         target = target->Next();
     }
 }
 
-
-void    SCBoard::ReDrawDisplay(
-)
+/****************************************************************************/
+/**
+ * @brief           ReDrawDisplay 函数
+ *                  重绘函数
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       void
+ *
+ * @return          void
+ */
+/****************************************************************************/
+void    SCBoard::ReDrawDisplay(void)
 {
     unsigned short  draw_com[SC_DRAW_COM_MAX];
     int com_num;
 
-    // 画面初期描画(描画コマンド作成)
+    // 画面初始化描画(作成描画命令)
     com_num = this->Draw(draw_com);
 
     if(com_num > 0) {
@@ -363,7 +407,19 @@ void    SCBoard::ReDrawDisplay(
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           UpdateDisplay 函数
+ *                  更新显示
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const int updateType    更新类型
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::UpdateDisplay(
     const int updateType
 )
@@ -375,7 +431,7 @@ void    SCBoard::UpdateDisplay(
 
     active = GetActiveBoard();
 
-    // 更新処理
+    // 更新处理
     com_num = active->Update(updateType, draw_com);
 
     if(com_num > 0) {
@@ -383,7 +439,20 @@ void    SCBoard::UpdateDisplay(
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           TDown 函数
+ *                  鼠标/触摸按下事件处理函数
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const unsigned short x   按下位置的x坐标
+ * @param[in]       const unsigned short y   按下位置的y坐标
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::TDown(
     const unsigned short    x,
     const unsigned short    y
@@ -393,25 +462,45 @@ void    SCBoard::TDown(
 
 
     active = GetActiveBoard();
-    if(active != this) {    // ダイアログがあれば、ダイアログにイベント配送
+    if(active != this) 
+    {   
+        // 如果存在Dialog，将PressDown事件发送给Dialog处理
         active->TDown(x, y);
     }
-    else {          // ダイアログがなければ、子部品へ
+    else 
+    {          
+        // 如果不存在Dialog，则交由相应的子部品进行处理
         SCPoint     point;
         SCParts*    target;
 
         point.Set(x, y);
 
-        target = GetOperableChild(point);   // 指定点の操作可能な子部品を取得
+        target = GetOperableChild(point);   // 取得指定点的可操作子部品
 
-        if(target) {
-            m_captured = target;        // キャプチャー部品とする
-            m_captured->TDown(point);   // キャプチャー部品のダウン処理呼び出し
+        if(target) 
+        {
+            m_captured = target;        // 成为捕获焦点的子部品
+            m_captured->TDown(point);   // 调用子部品的Down处理函数
         }
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           TMove 函数
+ *                  鼠标/触摸拖动事件处理函数
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const unsigned short x      拖动位置的x坐标
+ * @param[in]       const unsigned short y      拖动位置的y坐标
+ * @param[in]       const unsigned int level    拖动层次
+ * @param[in]       const int direction         拖动方向
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::TMove(
     const unsigned short    x,
     const unsigned short    y,
@@ -423,21 +512,38 @@ void    SCBoard::TMove(
 
 
     active = GetActiveBoard();
-    if(active != this) {    // ダイアログがあれば、ダイアログにイベント配送
+    if(active != this) 
+    {    
+        // 如果存在上层Dialog，将Move事件发送给上层Dialog处理
         active->TMove(x, y, level, direction);
     }
-    else {          // ダイアログがなければ、子部品へ
+    else 
+    {          
+        // 如果不存在上层Dialog，则交由相应的子部品进行处理
         if(m_captured) {
             SCPoint point;
 
             point.Set(x, y);
             m_captured->TMove(point, level, direction);
-                    // キャプチャー部品のムーヴ処理呼び出し
+                    // 调用当前获得焦点的子部品的Move处理函数
         }
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           TUp 函数
+ *                  鼠标/触摸抬起事件处理函数
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const unsigned short x   抬起位置的x坐标
+ * @param[in]       const unsigned short y   抬起位置的y坐标
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::TUp(
     const unsigned short    x,
     const unsigned short    y
@@ -447,22 +553,37 @@ void    SCBoard::TUp(
 
 
     active = GetActiveBoard();
-    if(active != this) {    // ダイアログがあれば、ダイアログにイベント配送
+    if(active != this) {    // 如果存在上层Dialog，将Up事件发送给上层Dialog处理
         active->TUp(x, y);
     }
-    else {          // ダイアログがなければ、子部品へ
+    else {          // 如果不存在上层Dialog，则交由相应的子部品进行处理
         if(m_captured) {
             SCPoint point;
 
             point.Set(x, y);
-            m_touch_point = point;      // リリース位置保存(Callback処理用)
-            m_captured->TUp(point);     // キャプチャー部品のアップ処理呼び出し
-            m_captured = 0;             // キャプチャー部品をクリア
+            m_touch_point = point;      // 保存释放位置(Callback处理使用)
+            m_captured->TUp(point);     // 调用当前获取焦点的子部品的Up处理函数
+            m_captured = 0;             // 当前获取焦点的子部品释放掉焦点
         }
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           TFlick 函数
+ *                  鼠标/触摸拖动事件处理函数
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const unsigned short x      拖动位置的x坐标
+ * @param[in]       const unsigned short y      拖动位置的y坐标
+ * @param[in]       const unsigned int level    拖动层次
+ * @param[in]       const int direction         拖动方向
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::TFlick(
     const unsigned short    x,
     const unsigned short    y,
@@ -474,25 +595,38 @@ void    SCBoard::TFlick(
 
 
     active = GetActiveBoard();
-    if(active != this) {    // ダイアログがあれば、ダイアログにイベント配送
+    if(active != this) {    // 如果存在上层Dialog，将Up事件发送给上层Dialog处理
         active->TFlick(x, y, level, direction);
     }
-    else {          // ダイアログがなければ、子部品へ
+    else {          // 如果不存在上层Dialog，则交由相应的子部品进行处理
         if(m_captured) {
             SCPoint point;
 
             point.Set(x, y);
-            m_touch_point = point;      // フリック位置保存(Callback処理用)
-            m_touch_level = level;      // フリックレベル保存(Callback処理用)
-            m_touch_direction = direction;  // フリック方向保存(Callback処理用)
+            m_touch_point = point;              // 保存Flick位置(Callback回调函数使用)
+            m_touch_level = level;              // 保存Flick Level(Callback回调函数使用)
+            m_touch_direction = direction;      // 保存Flick方向(Callback回调函数使用)
             m_captured->TFlick(point, level, direction);
-                                    // キャプチャー部品のフリック処理呼び出し
-            m_captured = 0;         // キャプチャー部品をクリア
+                                                // 调用当前获取焦点的子部品的Flick处理函数
+            m_captured = 0;                     // 当前获取焦点的子部品释放掉焦点
         }
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           TLongTap 函数
+ *                  鼠标/触摸长按事件处理函数
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const unsigned short x   按下位置的x坐标
+ * @param[in]       const unsigned short y   按下位置的y坐标
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::TLongTap(
     const unsigned short    x,
     const unsigned short    y
@@ -502,22 +636,35 @@ void    SCBoard::TLongTap(
 
 
     active = GetActiveBoard();
-    if(active != this) {    // ダイアログがあれば、ダイアログにイベント配送
+    if(active != this) {    // 如果存在上层Dialog，将Up事件发送给上层Dialog处理
         active->TLongTap(x, y);
     }
-    else {          // ダイアログがなければ、子部品へ
+    else {          // 如果不存在上层Dialog，则交由相应的子部品进行处理
         if(m_captured) {
             SCPoint point;
 
             point.Set(x, y);
-            m_touch_point = point;      // 長押し位置保存(Callback処理用)
-            m_captured->TLongTap(point);// キャプチャー部品の長押し処理呼び出し
-            m_captured = 0;             // キャプチャー部品をクリア
+            m_touch_point = point;      // 保存长按位置(Callback回调函数使用)
+            m_captured->TLongTap(point);// 调用当前获取焦点的子部品的LongTap处理函数
+            m_captured = 0;             // 当前获取焦点的子部品释放掉焦点
         }
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           GetChild 函数
+ *                  根据指定位置获取相应的子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const unsigned short x   子部品的位置x坐标
+ * @param[in]       const unsigned short y   子部品的位置y坐标
+ *
+ * @return          SCParts*        子部品的指针
+ */
+/****************************************************************************/
 SCParts*    SCBoard::GetChild(
     const unsigned short        x,
     const unsigned short        y
@@ -530,7 +677,19 @@ SCParts*    SCBoard::GetChild(
     return(GetChild(point));
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           GetChild 函数
+ *                  根据指定位置获取相应的子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const SCPoint&   子部品的指定位置坐标point（x，y）
+ *
+ * @return          SCParts*        子部品的指针
+ */
+/****************************************************************************/
 SCParts*    SCBoard::GetChild(
     const SCPoint&  point
 ) const
@@ -543,10 +702,10 @@ SCParts*    SCBoard::GetChild(
 
 
     while(target) {
-        // 子部品の領域取得
+        // 获取子部品的区域
         target->GetArea(&area);
 
-        // 指定の点が領域に含まれるかチェック
+        // 检查子部品的区域中是否包含指定的坐标点point（x，y）
         if(area.Contains(point)) {
             return(target);
         }
@@ -558,7 +717,19 @@ SCParts*    SCBoard::GetChild(
     return(target);
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           GetChild 函数
+ *                  根据指定ID获取相应的子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const SCPoint& id  子部品的指定ID
+ *
+ * @return          SCParts*        子部品的指针
+ */
+/****************************************************************************/
 SCParts*    SCBoard::GetChild(
     const short id
 ) const
@@ -567,7 +738,7 @@ SCParts*    SCBoard::GetChild(
 
 
     while(target) {
-        // 子部品のID取得
+        // 与子部品分配的ID进行比较
         if(id == target->GetID()) {
             return(target);
         }
@@ -579,9 +750,20 @@ SCParts*    SCBoard::GetChild(
     return(target);
 }
 
-
-SCParts*    SCBoard::GetLastChild(
-) const
+/****************************************************************************/
+/**
+ * @brief           GetLastChild 函数
+ *                  获得最后一个子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       void
+ *
+ * @return          SCParts*        子部品的指针
+ */
+/****************************************************************************/
+SCParts*    SCBoard::GetLastChild(void) const
 {
     SCParts*    target = GetChild();
     SCParts*    next;
@@ -600,7 +782,20 @@ SCParts*    SCBoard::GetLastChild(
     return(target);
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           GetOperableChild 函数
+ *                  获取可操作的子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const unsigned short x   子部品的位置x坐标
+ * @param[in]       const unsigned short y   子部品的位置y坐标
+ *
+ * @return          SCParts*        子部品的指针
+ */
+/****************************************************************************/
 SCParts*    SCBoard::GetOperableChild(
     const unsigned short        x,
     const unsigned short        y
@@ -613,7 +808,19 @@ SCParts*    SCBoard::GetOperableChild(
     return(GetOperableChild(point));
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           GetOperableChild 函数
+ *                  获取可操作的子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       const SCPoint&   子部品的指定位置坐标point（x，y）
+ *
+ * @return          SCParts*        子部品的指针
+ */
+/****************************************************************************/
 SCParts*    SCBoard::GetOperableChild(
     const SCPoint&  point
 ) const
@@ -626,14 +833,14 @@ SCParts*    SCBoard::GetOperableChild(
 
 
     while(target) {
-        if(target->GetVisible()) {      // 可視の部品のみチェックする
+        if(target->GetVisible()) {      // 仅仅检查可见部品
 
-            // 子部品の領域取得
+            // 获取子部品的区域
             target->GetArea(&area);
 
-            // 指定の点が領域に含まれるかチェック
+            // 是否包含指定的坐标点
             if(area.Contains(point)) {
-                if(target->GetEnable() == false) {  // 選択不可であれば
+                if(target->GetEnable() == false) {  // 该部品是否被使能
                     target = 0;
                 }
                 break;
@@ -647,7 +854,19 @@ SCParts*    SCBoard::GetOperableChild(
     return(target);
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           RegistParts 函数
+ *                  注册子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       SCParts* target 要注册的子部品
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::RegistParts(
     SCParts*    target
 )
@@ -656,27 +875,39 @@ void    SCBoard::RegistParts(
 
 
     if(target) {
-        // 対象部品の親部品として自分自身を登録
+        // 将自己注册为指定对象部品的父部品
         target->Parent(this);
 
-        // 現在の最終登録部品をとってくる
+        // 检索当前注册的最后一个子部品
         last = GetLastChild();
 
         if(last) {
-            last->Next(target); // lastの次部品をtargetにする
-            target->Prev(last); // targetの前部品をlastにする
+            last->Next(target); // 将target作为last的下一个部品
+            target->Prev(last); // 将target的上一个部品设为last
         }
         else {
-            m_child = target;   // 管理している子部品をtargetにする
-            target->Prev(0);    // 対象の前部品をなしにする
+            m_child = target;   // 把target作为管理的子部品
+            target->Prev(0);    // 该target没有前一个部品
         }
-        target->Next(0);        // 対象の次部品をなしにする
+        target->Next(0);        // 对象的下一个部品设为没有
 
-        // トレンドとの重なり確認(やるならここで)
+        // 确认是否与trend重叠
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           UnregistParts 函数
+ *                  解除注册子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       SCParts* target 要解除注册的子部品
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::UnregistParts(
     SCParts*    target
 )
@@ -707,7 +938,19 @@ void    SCBoard::UnregistParts(
     }
 }
 
-
+/****************************************************************************/
+/**
+ * @brief           DestroyParts 函数
+ *                  销毁指定的子部品
+ *
+ * @author  
+ * @date    
+ *
+ * @param[in]       SCParts* target 要销毁的子部品
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void    SCBoard::DestroyParts(
     SCParts*    target
 )
@@ -770,7 +1013,7 @@ void SCBoard::DestroyAllParts(void)
 /****************************************************************************/
 unsigned short  SCBoard::GetBackColor(void)
 {
-    return( (IsDialog())? COLOR_WHITE : COLOR_GRAY_EE );
+    return( (IsDialog())? COLOR_WHITE : COLOR_YELLOW); // Todo: COLOR_GRAY_EE );
 }
 
 /****************************************************************************/
@@ -851,9 +1094,20 @@ void SCBoard::RegistDialog( SCBoard* dialog )
     }
 }
 
-
-void        SCBoard::DestroyDialog(
-)
+/****************************************************************************/
+/**
+ * @brief       DestroyDialog
+ *              销毁Dialog
+ *
+ * @author      Tupelo
+ * @date        2018/12/27
+ *
+ * @param[in]   void
+ *
+ * @return      返回dialog所在的Board
+ */
+/****************************************************************************/
+void        SCBoard::DestroyDialog(void)
 {
     SCBoard*    active;
 
@@ -870,9 +1124,20 @@ void        SCBoard::DestroyDialog(
     }
 }
 
-
-void        SCBoard::DestroyAllDialog(
-)
+/****************************************************************************/
+/**
+ * @brief       DestroyAllDialog
+ *              销毁所有Dialog
+ *
+ * @author      Tupelo
+ * @date        2018/12/27
+ *
+ * @param[in]   void
+ *
+ * @return      返回dialog所在的Board
+ */
+/****************************************************************************/
+void        SCBoard::DestroyAllDialog(void)
 {
     SCBoard*    active;
 
@@ -905,19 +1170,20 @@ void        SCBoard::DestroyAllDialog(
 /************************************************************************************************************/
 void SCBoard::CreatePassReleaseDlg(int partsID, int passMode, void (*funcPassRelease)(int))
 {
-    SCRect rect;
-    GetArea(&rect);
+    // SCRect rect;
+    // GetArea(&rect);
 
-    SCDlgPasswordRelease* pDlg = new SCDlgPasswordRelease(rect,static_cast<SCDlgPasswordRelease::ENUM_PASSLOCKINFO>(passMode));
-    SCCallbackPasswordRelease* cbkLockRelease = new SCCallbackPasswordRelease(funcPassRelease, partsID);
+    // SCDlgPasswordRelease* pDlg = new SCDlgPasswordRelease(rect,static_cast<SCDlgPasswordRelease::ENUM_PASSLOCKINFO>(passMode));
+    // SCCallbackPasswordRelease* cbkLockRelease = new SCCallbackPasswordRelease(funcPassRelease, partsID);
 
-    pDlg->InitDialog(cbkLockRelease);
+    // pDlg->InitDialog(cbkLockRelease);
 
-    LiqHMIEvRegistDialog(reinterpret_cast<unsigned long>(pDlg));
+    // LiqHMIEvRegistDialog(reinterpret_cast<unsigned long>(pDlg));
 }
 
 void SCBoard::CreateRunningDlg()
 {
+    #if 0
     // 確認ダイアログ ボタンデータ構造体
     typedef struct _BTN_MSG
     {
@@ -960,4 +1226,5 @@ void SCBoard::CreateRunningDlg()
 
     //RegistDialog(pDLg);
     //pDLg->ReDrawDisplay();
+    #endif
 }

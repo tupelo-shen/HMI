@@ -12,6 +12,9 @@
 #include "HmiEvent.h"
 #include "HMIControl.h"
 #include "HMI_Resource.h"
+#include "sclColor.h"
+#include "sclDrawCom.h"
+
 #include "test_Simulator.h"
 
 extern "C" void SendEvent2HMI(
@@ -36,6 +39,9 @@ HmiMain::HmiMain() : is_ready(false)
 HmiMain::~HmiMain()
 {
 }
+#include "sclBoard.h"
+#include "sclParts.h"
+#include "sclLabel.h"
 
 void HmiMain::start(void)
 {
@@ -49,14 +55,31 @@ void HmiMain::start(void)
     // VRAM处理
     regBuf = (unsigned char *)buf;      // heap用作扩展处理的缓冲区
 
-    sts = registPalette(regBuf);
+    // 注册调色板1、2
+    sts = registPalette();
 
-#if 1   /* for testing simulator */
+#if 0   /* for testing simulator */
     test_main();
 #endif
-#if 1
+#if 0
     test_draw();
 #endif
+    const SCRect lbl_rect = {257, 3, 62, 32};
+    SCLabel* label = new SCLabel(0, lbl_rect);
+    label->arrangement(SC_ARRANGE_LEFT);
+    label->setStr("abc");
+    // label->RegistParts(label);
+
+    const SCRect m_rect = {100, 100, 10, 100};
+    unsigned short* com_buf;
+    SCBoard* board = new SCBoard(m_rect, 1);
+    int com_num = board->Draw(com_buf);
+
+    if(com_num > 0)
+    {
+        board->Display(com_num, com_buf);
+    }
+
     main();
 }
 
@@ -68,16 +91,16 @@ void HmiMain::start(void)
  * @return
  *          偏移量大小
  */
-int HmiMain::registPalette(unsigned char* buf)
+int HmiMain::registPalette(void)
 {
-    int sts;
+    // int sts;
     int palette_type, color_no, i;
-    unsigned int* offset_array;
-    unsigned int offset;
+    // unsigned int* offset_array;
+    // unsigned int offset;
     unsigned short command_buf[2048];   // 256色*4(makeRegistColorコマンド数)*2パレット
     int command_num = 0;
     unsigned char rgb[4];
-    unsigned char* ptr;
+    // unsigned char* ptr;
 
     // 调色板数据偏移量的获取
     // offset_array = sc_getBinOffset();
@@ -98,13 +121,39 @@ int HmiMain::registPalette(unsigned char* buf)
     //     }
     // }
 
+    // 注册调色板
+    for(palette_type = 0; palette_type < 2; palette_type++) 
+    {
+        if (palette_type == 0)
+        {
+            for(color_no = 0; color_no < SC_MAX_COLOR_NO; color_no++) 
+            {
+                for(i = 0; i < SC_PALETTE_PRIMARY_COLOR_NUM; i++) 
+                {
+                    rgb[i] = g_palette_buf_1[color_no][i];
+                }
+                command_num += SCDrawCom::makeCom16171819(palette_type, color_no, rgb[0], rgb[1], rgb[2], &command_buf[command_num]);
+            }            
+        }
+        else
+        {
+            for(color_no = 0; color_no < SC_MAX_COLOR_NO; color_no++) 
+            {
+                for(i = 0; i < SC_PALETTE_PRIMARY_COLOR_NUM; i++) 
+                {
+                    rgb[i] = g_palette_buf_2[color_no][i];
+                }
+                command_num += SCDrawCom::makeCom16171819(palette_type, color_no, rgb[0], rgb[1], rgb[2], &command_buf[command_num]);
+            }            
+        }
+    }
     // 把描画命令拷贝到缓冲区中
     PF_GDC_DRV_SetMenuCommand(command_buf, command_num);
 
     // Flush描画命令的缓冲区
     PF_GDC_DRV_FlushMenuCommand();
 
-    return(sts);
+    return 0;
 }
 /// function    main
 /// brief       HMI main process function
