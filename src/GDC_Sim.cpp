@@ -67,6 +67,21 @@ pf_point_t VramPoint(unsigned int addr)
     return point;
 }
 
+/****************************************************************************/
+/**
+ * @brief           GetVram()
+ *                  从VRAM中取得对应偏移量的位置的地址
+ *
+ * @param[in]       offset: VRAM中的偏移量
+ *
+ * @return          指向unsigned char类型的指针
+ */
+/****************************************************************************/
+unsigned char* GetVram(unsigned int offset)
+{
+    return &vram[offset];
+}
+
 pf_point_t TransfPoint(menu_bitblt_loc loc) 
 {
     pf_point_t point;

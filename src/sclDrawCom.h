@@ -44,6 +44,10 @@ typedef struct _sc_access_vram {
     } ADRS;
 } SCVRAM;
 
+/* VRAM存储位置（Y坐标） */
+#define SC_VRAM_PICTURE (0x1000)    // VRAM图像存储位置
+#define SC_VRAM_FONT    (0x2000)    // Font存储位置
+
 /*
  * 描画参数结构体
  */

@@ -11,6 +11,7 @@ SRC_OBJS 	= src/Common.o\
 			src/HMIControl.o\
 			src/DrawCommand.o\
 			src/FontInfo.o\
+			src/rc_font.o\
 			src/HMI_Resource.o\
 			src/HMI_Alloc.o\
 			src/sclDrawCom.o\

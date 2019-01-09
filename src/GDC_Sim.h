@@ -28,6 +28,7 @@ const int size_color_palette = 256;
 const int size_color_pal_idx = 2;
 
 unsigned int    VramAddr(unsigned int x, unsigned y);
+unsigned char*  GetVram(unsigned int offset);
 pf_point_t      VramPoint(unsigned int addr);
 pf_point_t      TransfPoint(menu_bitblt_loc loc);
 unsigned long   getBitBltFixedY(void);

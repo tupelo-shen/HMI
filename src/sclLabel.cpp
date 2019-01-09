@@ -70,21 +70,21 @@ int SCLabel::drawCapture(unsigned short** com_pos)
     param.rect = m_area;                    // 塗りつぶし領域
     param.work_scr = m_work_scr;            // 表示プレーン(更新用)指定
     param.arrangement = this->m_arrangement;
-    param.distance = 0;                     // 字間
-    param.font_type = m_font_type;          // フォントタイプ
-    param.fore_color = m_fore_color;        // 文字の色
+    param.distance = 0;                     // 字间距
+    param.font_type = m_font_type;          // 字体类型
+    param.fore_color = m_fore_color;        // 文字的颜色
     param.back_color = COLOR_TRANSPARENT;   // 背景色 <- Mitomo Modified 透明色固定
 
     if(m_targetID < 0)                      // Mitomo modified 固定文字列未使用時は、m_targetIDが負の値
     {
         param.str = m_label;                    // 表示文字列
 
-        // 指定フォントサイズで描画
+        // 使用指定的字体大小绘制
         if(m_drawMode == DRAWMODE_DIRECT)
         {
             com_num += SCDrawCom::makeFreeString(param, *com_pos);
         }
-        // 言語によってフォントサイズ自動変更
+        // 按语言自动更改字体大小
         else
         {
             com_num += SCDrawCom::makeFreeStringReal(param, *com_pos);
@@ -94,12 +94,12 @@ int SCLabel::drawCapture(unsigned short** com_pos)
     {
         param.target_ID = m_targetID;           // 表示文字列
 
-        // 指定フォントサイズで描画
+        // 使用指定的字体大小绘制
         if(m_drawMode == DRAWMODE_DIRECT)
         {
             com_num += SCDrawCom::makeFixedString(param, *com_pos);
         }
-        // 言語によってフォントサイズ自動変更
+        // 按语言自动更改字体大小
         else
         {
             com_num += SCDrawCom::makeFixedStringReal(param, *com_pos);

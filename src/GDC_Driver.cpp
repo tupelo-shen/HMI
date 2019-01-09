@@ -215,3 +215,24 @@ void PF_GDC_DRV_SetTransparentColor(unsigned char _transparent_color)
 {
     setTransparentColor(_transparent_color);
 }
+
+/****************************************************************************/
+/**
+ * @brief           main()
+ *                  HMI的主程序，完成HMI相关主要逻辑的处理
+ *
+ * @author          Tupelo
+ * @date            2018-12-27
+ *
+ * @param[in]       offset: VRAM中的偏移量
+ *                  dat:    要写入的数据
+ *                  size：   要写入的数据大小
+ *
+ * @return          0: 成功
+ */
+/****************************************************************************/
+int PF_GDC_DRV_VramAccess(unsigned int offset, const void *dat, unsigned int size)
+{
+    memcpy(GetVram(offset), dat, size);
+    return 0;
+}

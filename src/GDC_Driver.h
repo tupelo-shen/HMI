@@ -125,6 +125,8 @@ int PF_GDC_DRV_ClearMenuCommand(void);
 int PF_GDC_DRV_RegistPlaneTable(const pf_plane_table_t *, unsigned int);
 void PF_GDC_DRV_SetTransparentColor(unsigned char);
 
+int PF_GDC_DRV_VramAccess(unsigned int offset, const void *dat, unsigned int size);
+
 #ifdef __cplusplus
 }
 #endif

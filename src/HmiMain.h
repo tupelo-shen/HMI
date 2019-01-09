@@ -31,8 +31,13 @@ public :
 
 
     void                eventHandler(HmiEvent& ev);
+    int                 registFont(unsigned short lang_id, unsigned char* buf);
     int                 registPalette(void);
+    int                 VramAccessBlock(unsigned int addr, const void* data, unsigned int size);
 
+private:
+    void                loadFile(const char * fname, unsigned char* fdata, unsigned long* fsize);
+    unsigned int        readLine(const char* src, unsigned char* dst);
     // static HeapManager* getHMIHeap(void){return (hmi_heap);}
 
 private :
