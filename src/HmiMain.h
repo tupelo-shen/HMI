@@ -44,6 +44,7 @@ private:
     void                loadFile(const char * fname, unsigned char* fdata, unsigned long* fsize);
     unsigned int        readLine(const char* src, char* dst);
     unsigned int        get2CharsFromStr(const char* src, char* dst);
+    unsigned char       strToUC(const char* src);
     unsigned long       convertToBin(const char* src, unsigned char* dst, unsigned long size);
     // static HeapManager* getHMIHeap(void){return (hmi_heap);}
 

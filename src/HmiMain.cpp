@@ -85,7 +85,7 @@ void HmiMain::start(void)
     const SCRect lbl_rect = {110, 110, 60, 30};
     SCLabel* label = new SCLabel(0, lbl_rect);
     label->arrangement(SC_ARRANGE_LEFT);
-    label->setStr("abc");
+    label->setStr("abcabc");
     board->RegistParts(label);
 
     int com_num = board->Draw(com_buf);
@@ -111,6 +111,9 @@ void HmiMain::start(void)
  * @return  int     填充的描画命令数
  */
 /****************************************************************************/
+#if 1
+#include "GDC_Sim.h"
+#endif
 int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
 {
     int                 sts;
@@ -157,7 +160,22 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
         head->FONT.HEIGHT   = *(unsigned char *)(buf+1);
         head->FONT.COUNT    = *(unsigned short*)(buf+2);
         memcpy((char *)(head->FONT.CHAR), (char *)(buf+4), 4*(head->FONT.COUNT));
-
+#if 0
+        for (int m = 0; m < 2*99; m++)
+        {
+            if (m % 2 == 0)
+                printf("\n====================\n");
+            printf("%3d ", *((unsigned short*)buf+ 2 + m));
+        }
+#endif
+#if 0
+        for (int m = 0; m < 16*99; m++)
+        {
+            if (m % 16 == 0)
+                printf("\n====================\n");
+            printf("%2x ", *((unsigned char*)buf+ 4 + 4*99+ m-1));
+        }
+#endif
         // printf("head->FONT.WIDTH = %d; head->FONT.HEIGHT = %d, head->FONT.COUNT = %d\n", 
         //         head->FONT.WIDTH, head->FONT.HEIGHT, head->FONT.COUNT);
         // 算出字体大小
@@ -171,6 +189,14 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
         printf("dataSize = %d\n", dataSize);
         memcpy((char*)buf, (char*)(buf+headSize), dataSize);
         memset((buf+dataSize), 0x00, INIT_MEM_SIZE-dataSize);
+#if 0
+        for (int m = 0; m < dataSize; m++)
+        {
+            if (m % 16 == 0)
+                printf("\n====================\n");
+            printf("%2x ", *(buf+m));
+        }
+#endif
 
         // Bitmap展开到缓冲区中
         for (j = head->FONT.COUNT-1; j>=0; j--)
@@ -197,13 +223,26 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
                     buf + j*VRAM_EXPORT_SIZE, cpy_size);
         }
         if(sts != 0) return(sts);
+#if 0
+        printf("vram_adr.ADRS.DWORD = %d\n", vram_adr.ADRS.DWORD);
+        unsigned char tmp_vram[100*16] = {0};
+        memcpy(tmp_vram, GetVram(vram_adr.ADRS.DWORD), 100*16);
+        for (int m=30;m<100;m++)
+        {
+            printf("\ntmp_varm[%d] = \n", m);
+            for (int n = 0; n < 16; n++)
+            {
+                printf("%x ", tmp_vram[m*n]); 
+            }               
+        }
+#endif
 
         // VRAM写入成功时
         font_info[i].f_width  = head->FONT.WIDTH;
         font_info[i].f_height = head->FONT.HEIGHT;
         printf("font_info[i].f_width = %d; font_info[i].f_height = %d\n", 
                 font_info[i].f_width, font_info[i].f_height);
-        size.width  = ((head->FONT.WIDTH%8)?(head->FONT.WIDTH/8+1):
+        size.width  = ((head->FONT.WIDTH%8) ? (head->FONT.WIDTH/8+1) :
                 (head->FONT.WIDTH/8))*8;
         size.height = head->FONT.HEIGHT;
 
@@ -448,6 +487,14 @@ void HmiMain::loadFile(const char * fname, unsigned char* buf, unsigned long *fs
             fin.read((char *)fdata, *fsize);
             *fsize = convertToBin((const char* )fdata, buf, *fsize);
             // printf("fsize = %ld\n", *fsize);
+            #if 0
+            for (int i = 0; i < 16*99; i++)
+            {
+                if (i % 16 == 0)
+                    printf("\n====================\n");
+                printf("%2x ", *(buf+ 4 + 4*99+ i));
+            }               
+            #endif 
         }
     }
     catch (boost::filesystem::filesystem_error & exp)
@@ -571,7 +618,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
         {            
             ptr = strtok(NULL, &char_space);     // get width
             len = strlen(ptr);
-            printf("width = %s\n", ptr);
+            // printf("width = %s\n", ptr);
             if (len)
             {
                 char_width_max = static_cast<unsigned char>(atoi(ptr++));        // str converts to integer
@@ -579,16 +626,16 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
             }
             ptr = strtok(NULL, &char_space);     // get height
             len = strlen(ptr);
-            printf("height = %s\n", ptr);
+            // printf("height = %s\n", ptr);
             if (len)
             {
                 char_height_max = static_cast<unsigned char>(atoi(ptr++));        // str converts to integer
                 *font_head_ptr++ = char_height_max;
-                printf("height = %d\n", (unsigned int)*(dst+1));
+                // printf("height = %d\n", (unsigned int)*(dst+1));
             }
             ptr = strtok(NULL, &char_space);     // get x_offset
             len = strlen(ptr);
-            printf("x_offset = %s\n", ptr);
+            // printf("x_offset = %s\n", ptr);
             if (len)
             {
                 char_x_offset_max = atoi(ptr++);        // str converts to integer
@@ -596,7 +643,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
             }
             ptr = strtok(NULL, &char_space);     // get y_offset
             len = strlen(ptr);
-            printf("y_offset = %s\n", ptr);
+            // printf("y_offset = %s\n", ptr);
             if (len)
             {
                 char_y_offset_max = atoi(ptr++);        // str converts to integer
@@ -654,6 +701,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
         {
             char_data_start = 1;                // 开始读取单个字符数据
             memset(char_data, 0x00, SINGLE_CHAR_DATA_BYTES);
+            memset(char_data_1, 0x00, SINGLE_CHAR_DATA_BYTES);
             k = 0;
             j = 0;
             // 计算文件中该字符的数据个数
@@ -672,7 +720,10 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
 
         // 读取bitmap数据
         if (char_data_start)
-        {
+        {   
+            if (!((*ptr <= '9' && *src >= '0') || (*ptr <= 'F' && *src >= 'A')))
+                continue;
+
             for (m = 0; m < char_data_bytes; m++)
             {
                 char str[3] = {0};
@@ -680,22 +731,45 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
                 if (get2CharsFromStr(ptr, str))
                 {
                     // printf("str = %s\n", str);
-                    char_data_1[j++] = static_cast<unsigned char>(atoi(str));
+                    char_data_1[j++] = strToUC(str);
+                    // printf("char_data[%2d] = %2x\n", j, char_data[j]);
+                    // printf("char_data_bytes = %d\n", char_data_bytes);
                 }
             }
+            continue;
         }
 
         // 将bitmap数据填充到指定缓冲区
         if (fill_data_start)
         {
-            for(j=j-1; j!=0; j--)
+            unsigned int index = char_data_bytes*(char_y_offset - char_y_offset_max) + char_x_offset;
+            for(m=0; m<j; m++)
             {
-                unsigned int index = (k++)+char_data_bytes*(char_y_offset - char_y_offset_max);
-                char_data[index] = char_data_1[j];
+                // index += k;
+                char_data[index++] = char_data_1[m];
+                // k++;
             }
-            memcpy(font_data_ptr, char_data, char_data_bytes * char_height);
+
+            memcpy(font_data_ptr, char_data, char_data_bytes * char_height_max);
+            #if 0
+            printf("\n====================\n");
+            for (int m = 0; m < char_data_bytes * char_height_max; m++)
+            {
+                
+                printf("%2x ", *(dst + 4 + 4 * font_chars_num + m));
+            }  
+            #endif
+            #if 0
+            printf("\n====================\n");
+            for (int i = 0; i < char_data_bytes * char_height_max; i++)
+            {
+                
+                printf("%2x ", *(font_data_ptr + i));
+            }  
+            #endif
+            font_data_ptr += char_data_bytes * char_height_max;
             count += char_data_bytes * char_height_max;
-            fill_data_start = 0; 
+            fill_data_start = 0;
         }
     }
     
@@ -706,9 +780,6 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
 /**
  * @brief           get2CharsFromStr
  *                  从一个指定字符串中取前两个字符，奇数时，只取一个字符
- *
- * @author          Tupelo
- * @date            2018-12-27
  *
  * @param[in/out]   src: 指定字符串
  *
@@ -726,4 +797,32 @@ unsigned int HmiMain::get2CharsFromStr(const char* src, char* dst)
 
     *dst = '\0';
     return i;
+}
+/****************************************************************************/
+/**
+ * @brief           strToUC()
+ *                  将两个字符转换成unsigned char型数据
+ *
+ * @param[in/out]   src: 指定两个字符
+ *
+ * @return          uc: unsigned char型数据
+ */
+/****************************************************************************/
+unsigned char HmiMain::strToUC(const char* src)
+{
+    unsigned char ret = 0;
+
+    for (int i = 0; (i < 2) && (*src != '\0'); i++, src++)
+    {
+        if (*src <= '9' && *src >= '0')
+        {
+            ret |= ((*src-0x30) << 4*(1-i)) & (0x0F << 4*(1-i));
+        }
+        else if (*src <= 'F' && *src >= 'A')
+        {
+            ret |= ((*src-0x37) << 4*(1-i)) & (0x0F << 4*(1-i));
+        }
+    }
+    
+    return ret;
 }
