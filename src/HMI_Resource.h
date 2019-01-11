@@ -17,7 +17,7 @@
           +-------------------------------------------------+
 */
 
-#define INIT_MEM_SIZE           (3*1024*1024)   // heap size
+#define INIT_MEM_SIZE           (3*1024*1024)   // heap size（3M）
 #define SC_BIN_HEAD_SIZE        (7*4)
 #define SC_PALETTE_DATA_SIZE    (2048)          // 256色*4(makeRegistColor command数)*2Palette
 #define SC_MAX_COLOR_NO         (256)           // 注册颜色的数量
@@ -43,13 +43,13 @@ typedef union _head
 {
     struct _font
     {
-        unsigned char WIDTH;
-        unsigned char HEIGHT;
-        unsigned short COUNT;
+        unsigned char   WIDTH;
+        unsigned char   HEIGHT;
+        unsigned short  COUNT;
         struct _char 
         {
-            unsigned short CODE;
-            unsigned short WIDTH;
+            unsigned short  CODE;
+            unsigned short  WIDTH;
         } CHAR[SC_MAX_CHAR_NUM_IN_FONT];
     } FONT;
     struct _image
@@ -57,16 +57,16 @@ typedef union _head
         unsigned int COUNT;
         struct _char 
         {
-            unsigned int OFFSET;
-            unsigned int WIDTH;
-            unsigned int HEIGHT;
+            unsigned int    OFFSET;
+            unsigned int    WIDTH;
+            unsigned int    HEIGHT;
         } PICT[SC_MAX_PICTURE_NUM];
         unsigned char REV[SC_MAX_CHAR_NUM_IN_FONT*4 + 4 - (SC_MAX_PICTURE_NUM*12 + 4)];
     } IMG;
     struct _string
     {
-        unsigned int OFFSET[SC_MAX_STR_NUM + 1];
-        unsigned char REV[SC_MAX_CHAR_NUM_IN_FONT*4 + 4 - (SC_MAX_STR_NUM*4 + 4)];
+        unsigned int    OFFSET[SC_MAX_STR_NUM + 1];
+        unsigned char   REV[SC_MAX_CHAR_NUM_IN_FONT*4 + 4 - (SC_MAX_STR_NUM*4 + 4)];
     } STR;
 } SCHEAD;
 
@@ -76,10 +76,16 @@ typedef struct _sc_pict_info_str {
 } SCPICTINFO;
 
 typedef struct _sc_font_info_str {
-    unsigned int  f_width;
-    unsigned int  f_height;
+    unsigned int    f_width;
+    unsigned int    f_height;
     unsigned char width[SC_MAX_CHAR_NUM];
 } SCFONTINFO;
+
+typedef union _sc_pointer_int
+{
+    unsigned char*  pointer;
+    unsigned int    value;
+} UNTRANSFER;
 
 typedef int(*SCFONTTAB)[SC_MAX_FONT_NUM];
 

@@ -421,6 +421,7 @@ int SCDrawCom::makeFixedString(
  *  unsigned char   back_color;     背景の色
  */
 /****************************************************************************/
+#include <stdio.h>
 int SCDrawCom::makeFreeString(
     SCDRAWPARAM&        param,
     unsigned short*     draw_command_buf
@@ -433,6 +434,7 @@ int SCDrawCom::makeFreeString(
 
     // 字符串表示位置计算
     font_height = getFontHeight(param.font_type);
+    // printf("font_height = %d\n", font_height);
     str_width = getStringWidth(param.font_type, param.str);
     getTargetPosition(param.arrangement, param.rect, str_width, font_height,
             &pos);

@@ -49,6 +49,7 @@ SCLabel::~SCLabel()
  * @return  int     填充的描画命令数
  */
 /****************************************************************************/
+#include "stdio.h"
 int SCLabel::drawCapture(unsigned short** com_pos)
 {
     int com_num = 0;

@@ -109,23 +109,29 @@ typedef struct
 
 typedef void (*pf_touch_event_func_t)(pf_touch_event_t, pf_point_t, unsigned int, pf_drag_flick_direction_t);
 
-int PF_GDC_DRV_FlipPaletteAndScreen(unsigned int, unsigned int);
-int PF_GDC_DRV_FlipPalette(unsigned int);
-int PF_GDC_DRV_FlipScreen(unsigned int);
-void PF_GDC_DRV_GetPaletteAndScreen(unsigned int *, unsigned int *);
-unsigned int PF_GDC_DRV_GetPalette(void);
-unsigned int PF_GDC_DRV_GetScreen(void);
+int             PF_GDC_DRV_FlipPaletteAndScreen(unsigned int, unsigned int);
+int             PF_GDC_DRV_FlipPalette(unsigned int);
+int             PF_GDC_DRV_FlipScreen(unsigned int);
+void            PF_GDC_DRV_GetPaletteAndScreen(unsigned int *, unsigned int *);
+unsigned int    PF_GDC_DRV_GetPalette(void);
+unsigned int    PF_GDC_DRV_GetScreen(void);
+
 // 触摸板配置相关
-int PF_GDC_DRV_SetTouchPanelConfigData(pf_touch_event_func_t func, const pf_touch_config_t* config);
+int             PF_GDC_DRV_SetTouchPanelConfigData(pf_touch_event_func_t func, const pf_touch_config_t* config);
 
 // 与描述命令相关
-int PF_GDC_DRV_SetMenuCommand(const unsigned short *, unsigned int);
-int PF_GDC_DRV_FlushMenuCommand(void);
-int PF_GDC_DRV_ClearMenuCommand(void);
-int PF_GDC_DRV_RegistPlaneTable(const pf_plane_table_t *, unsigned int);
-void PF_GDC_DRV_SetTransparentColor(unsigned char);
-
-int PF_GDC_DRV_VramAccess(unsigned int offset, const void *dat, unsigned int size);
+int             PF_GDC_DRV_SetMenuCommand(const unsigned short *, unsigned int);
+int             PF_GDC_DRV_FlushMenuCommand(void);
+int             PF_GDC_DRV_ClearMenuCommand(void);
+int             PF_GDC_DRV_RegistPlaneTable(const pf_plane_table_t *, unsigned int);
+void            PF_GDC_DRV_SetTransparentColor(unsigned char);
+int             PF_GDC_DRV_RegistFont(
+                    unsigned int font_id, 
+                    unsigned int vram_offset, 
+                    pf_font_size_t font_size, 
+                    unsigned int width_info, 
+                    unsigned int width_address);
+int             PF_GDC_DRV_VramAccess(unsigned int offset, const void *dat, unsigned int size);
 
 #ifdef __cplusplus
 }

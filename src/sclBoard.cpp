@@ -1013,7 +1013,8 @@ void SCBoard::DestroyAllParts(void)
 /****************************************************************************/
 unsigned short  SCBoard::GetBackColor(void)
 {
-    return( (IsDialog())? COLOR_WHITE : COLOR_YELLOW); // Todo: COLOR_GRAY_EE );
+    // return( (IsDialog())? COLOR_WHITE : COLOR_YELLOW); // Todo: COLOR_GRAY_EE );
+    return( (IsDialog())? COLOR_WHITE : COLOR_GRAY_EE); // Todo: COLOR_GRAY_EE );
 }
 
 /****************************************************************************/

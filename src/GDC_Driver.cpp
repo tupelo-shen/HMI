@@ -1,4 +1,5 @@
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
 #include <map>
 #include "Queue.h"
 #include "GDC_Driver.h"
@@ -218,11 +219,32 @@ void PF_GDC_DRV_SetTransparentColor(unsigned char _transparent_color)
 
 /****************************************************************************/
 /**
- * @brief           main()
- *                  HMI的主程序，完成HMI相关主要逻辑的处理
+ * @brief           PF_GDC_DRV_RegistFont()
+ *                  将字体相关信息写入驱动中
  *
- * @author          Tupelo
- * @date            2018-12-27
+ * @param[in]       font_id:        字体类型，现在只有大、中、小三种字体
+ *                  vram_offset:    在VRAM中的偏移地址
+ *                  font_size:      字体实际占据像素的个数（weight * height）
+ *                  width_info:     字体宽度，等宽还是等比例
+ *                  width_address:  字体宽度值
+ * @return          0: 成功
+ */
+/****************************************************************************/
+int PF_GDC_DRV_RegistFont(
+    unsigned int font_id, 
+    unsigned int vram_offset, 
+    pf_font_size_t font_size, 
+    unsigned int width_info, 
+    unsigned int width_address)
+{
+    RegistFont(font_id, vram_offset, font_size, width_info, width_address);
+    return 0;
+}
+
+/****************************************************************************/
+/**
+ * @brief           PF_GDC_DRV_VramAccess()
+ *                  将字体相关数据信息写入VRAM中
  *
  * @param[in]       offset: VRAM中的偏移量
  *                  dat:    要写入的数据

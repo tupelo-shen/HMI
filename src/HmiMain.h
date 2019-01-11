@@ -11,6 +11,11 @@
 #include "HmiEvent.h"
 #include "GDC_Driver.h"
 
+
+// 文字间隔信息（0：等宽字体，1：等比例字体）
+#define FONT_MONOSPACED     (0)             // 等宽字体
+#define FONT_PROPORTIONAL   (1)             // EMC实验使用画面
+
 class HmiMain {
 public :
     HmiMain();
@@ -37,7 +42,9 @@ public :
 
 private:
     void                loadFile(const char * fname, unsigned char* fdata, unsigned long* fsize);
-    unsigned int        readLine(const char* src, unsigned char* dst);
+    unsigned int        readLine(const char* src, char* dst);
+    unsigned int        get2CharsFromStr(const char* src, char* dst);
+    unsigned long       convertToBin(const char* src, unsigned char* dst, unsigned long size);
     // static HeapManager* getHMIHeap(void){return (hmi_heap);}
 
 private :
