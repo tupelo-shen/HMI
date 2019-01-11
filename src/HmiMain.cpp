@@ -77,7 +77,7 @@ void HmiMain::start(void)
 #if 0
     test_draw();
 #endif
-
+#if 1
     const SCRect m_rect = {100, 100, 100, 100};
     unsigned short* com_buf;
     SCBoard* board = new SCBoard(m_rect, 1);
@@ -94,7 +94,7 @@ void HmiMain::start(void)
     {
         board->Display(com_num, com_buf);
     }
-
+#endif
     main();
 }
 
@@ -158,8 +158,8 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
         head->FONT.COUNT    = *(unsigned short*)(buf+2);
         memcpy((char *)(head->FONT.CHAR), (char *)(buf+4), 4*(head->FONT.COUNT));
 
-        printf("head->FONT.WIDTH = %d; head->FONT.HEIGHT = %d, head->FONT.COUNT = %d\n", 
-                head->FONT.WIDTH, head->FONT.HEIGHT, head->FONT.COUNT);
+        // printf("head->FONT.WIDTH = %d; head->FONT.HEIGHT = %d, head->FONT.COUNT = %d\n", 
+        //         head->FONT.WIDTH, head->FONT.HEIGHT, head->FONT.COUNT);
         // 算出字体大小
         headSize = 4 + 4*head->FONT.COUNT;
         bitmapSize = ((head->FONT.WIDTH%8) ? (head->FONT.WIDTH/8 + 1) :
@@ -177,7 +177,7 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
         {
             // head->FONT.CHAR[j].CODE 存储字体中单个字符的编码（unsigned short型）
             // 将buf中存储的字符数据，按照编码大小，存到编码对应的位置上
-            printf("head->FONT.CHAR[%d].WIDTH = %d; head->FONT.CHAR[%d].CODE = %d\n", j, head->FONT.CHAR[j].WIDTH,  j, head->FONT.CHAR[j].CODE);
+            //printf("head->FONT.CHAR[%d].WIDTH = %d; head->FONT.CHAR[%d].CODE = %d\n", j, head->FONT.CHAR[j].WIDTH,  j, head->FONT.CHAR[j].CODE);
             font_info[i].width[head->FONT.CHAR[j].CODE] = (unsigned char)(head->FONT.CHAR[j].WIDTH);
             memcpy((char*)(buf + bitmapSize * (head->FONT.CHAR[j].CODE)), 
                     (char*)(buf + bitmapSize*j), bitmapSize);
@@ -447,7 +447,7 @@ void HmiMain::loadFile(const char * fname, unsigned char* buf, unsigned long *fs
         {
             fin.read((char *)fdata, *fsize);
             *fsize = convertToBin((const char* )fdata, buf, *fsize);
-            printf("fsize = %ld\n", *fsize);
+            // printf("fsize = %ld\n", *fsize);
         }
     }
     catch (boost::filesystem::filesystem_error & exp)
@@ -622,7 +622,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
         if (strcmp(ptr, font_coding) == 0)
         {
             ptr = strtok(NULL, &char_space);     // delete "ENCODING"
-            printf("ENCODING = %s\n", ptr);
+            // printf("ENCODING = %s\n", ptr);
             unsigned short font_encoding = static_cast<unsigned short>(atoi(ptr++));
             tmp_ptr = reinterpret_cast<unsigned short*>(font_head_ptr);
             *tmp_ptr = font_encoding;         
@@ -633,19 +633,19 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
         if (strcmp(ptr, font_bbx) == 0) 
         {
             ptr = strtok(NULL, &char_space);     // get "char_width"
-            printf("char_width = %s\n", ptr);
+            // printf("char_width = %s\n", ptr);
             char_width = static_cast<unsigned short>(atoi(ptr++));
             ptr = strtok(NULL, &char_space);     // get "char_height"
-            printf("char_height = %s\n", ptr);
+            // printf("char_height = %s\n", ptr);
             char_height = static_cast<unsigned short>(atoi(ptr++));
             tmp_ptr = reinterpret_cast<unsigned short*>(font_head_ptr);
             *tmp_ptr = char_width;              
             font_head_ptr += 2;
             ptr = strtok(NULL, &char_space);     // get "char_x_offset"
-            printf("char_x_offset = %s\n", ptr);
+            // printf("char_x_offset = %s\n", ptr);
             char_x_offset = atoi(ptr++);
             ptr = strtok(NULL, &char_space);     // get "char_y_offset"
-            printf("char_y_offset = %s\n", ptr);
+            // printf("char_y_offset = %s\n", ptr);
             char_y_offset = atoi(ptr++);
         }
 
@@ -658,7 +658,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
             j = 0;
             // 计算文件中该字符的数据个数
             char_data_bytes = (char_width % 8) ? (char_width/8 + 1) : (char_width/8);
-            printf("char_data_bytes = %d\n", char_data_bytes);
+            // printf("char_data_bytes = %d\n", char_data_bytes);
             continue;                           // 重新读取一行
         }
 
@@ -667,7 +667,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
         {
             char_data_start = 0;                // 结束读取单个字符数据
             fill_data_start = 1;
-            printf("end *****\n");
+            // printf("end *****\n");
         }
 
         // 读取bitmap数据
@@ -676,7 +676,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
             for (m = 0; m < char_data_bytes; m++)
             {
                 char str[3] = {0};
-                printf("ptr = %s\n", ptr);
+                // printf("ptr = %s\n", ptr);
                 if (get2CharsFromStr(ptr, str))
                 {
                     // printf("str = %s\n", str);
@@ -699,7 +699,7 @@ unsigned long HmiMain::convertToBin(const char* src, unsigned char* dst,  unsign
         }
     }
     
-    printf("count = %d\n", count);
+    // printf("count = %d\n", count);
     return count;
 }
 /****************************************************************************/

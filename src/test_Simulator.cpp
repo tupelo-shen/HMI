@@ -631,8 +631,8 @@ void test_draw_8bit(unsigned char color)
         (0x0B << 10) | (0x00),
         (0x0C << 10) | (0x00),
         (0x0D << 10) | (0x00),
-        (0x0E << 10) | (0x00),
-        (0x0F << 10) | (0x00),
+        (0x0E << 10) | (0x00),      /* SetMenuDestPointY */
+        (0x0F << 10) | (0x00),      /* SetMenuDestPointX */
         (0x10 << 10) | (0x20),
         (0x11 << 10) | (0x18),
         (0x01 << 10) | (0x02),
@@ -725,18 +725,20 @@ void test_draw_font(unsigned char back_color, unsigned char fore_color)
     unsigned short cmds_3[] = {
         static_cast<unsigned short>((0x04 << 10) | (back_color)),
         static_cast<unsigned short>((0x05 << 10) | (fore_color)),
-        (0x13 << 10) | (0x00),
-        (0x14 << 10) | (0x00),
-        (0x15 << 10) | (0x00),
-        (0x16 << 10) | (0x02), 
-        (0x17 << 10) | (0x00), 
-        (0x18 << 10) | (0x00), // おまけ
-        (0x19 << 10) | (0xFF), // おまけ
-        (0x16 << 10) | (0x03), 
-        (0x17 << 10) | (0x00), 
-        (0x18 << 10) | (0xFF), 
-        (0x19 << 10) | (0x00), 
-        (0x01 << 10) | (0x08)
+        (0x13 << 10) | (0x00),   /* SetFontType */
+        (0x14 << 10) | (0x00),   /* SetFontCharacterHigherCode */
+        (0x15 << 10) | (0x00),   /* SetFontCharacterLowerCode */
+        (0x16 << 10) | (0x01),   /* SetColorPaletteAddr */      
+        (0x17 << 10) | (0x00),   /* SetColorPaletteDataR */
+        (0x18 << 10) | (0x00),   /* SetColorPaletteDataG */ // おまけ
+        (0x19 << 10) | (0xFF),   /* SetColorPaletteDataB */// おまけ
+        (0x16 << 10) | (0x02),   /* SetColorPaletteAddr */
+        (0x17 << 10) | (0x00),   /* SetColorPaletteDataR */
+        (0x18 << 10) | (0xFF),   /* SetColorPaletteDataG */
+        (0x19 << 10) | (0x00),   /* SetColorPaletteDataB */
+        (0x0E << 10) | (0x00),   /* SetMenuDestPointY */    // From (0,0)
+        (0x0F << 10) | (0x00),   /* SetMenuDestPointX */
+        (0x01 << 10) | (0x08)    /* SetMenuExecute */
     };
 
     PF_GDC_DRV_SetMenuCommand(cmds_3, sizeof(cmds_3) / sizeof(cmds_3[0]));
@@ -889,10 +891,10 @@ void test_transparent()
 }
 
 void test_draw() {
-    // sleep(3);
-    // test_draw_8bit(0x01);           // 0x01-红色
-    // test_draw_font(0x02, 0x03);
-    // sleep(1);
+    sleep(3);
+    test_draw_8bit(0x01);           // 0x01-红色
+    test_draw_font(0x02, 0x03);
+    sleep(1);
     // // test_draw_string();
     // test_draw_fill_rect(0x03);
     // test_flip();
@@ -902,26 +904,7 @@ void test_draw() {
     // test_draw_font(0x01, 0x03);
     // sleep(1);
     // sleep(1);
-    test_transparent();
+    // test_transparent();
 
-// // void test_draw_fill_rect(unsigned char color)
-// // {
-//     unsigned short cmds_1[] = {
-//         static_cast<unsigned short>((0x04 << 10) | 0x01),
-//         (0x0B << 10) | (0x00),
-//         (0x0C << 10) | (0x00),
-//         (0x0D << 10) | (0x00),
-//         (0x0E << 10) | (0x00),
-//         (0x0F << 10) | (0x00),
-//         (0x10 << 10) | (0x3F),
-//         (0x11 << 10) | (0x0B),
-//         (0x01 << 10) | (0x01),
-//     };
-//     PF_GDC_DRV_SetMenuCommand(cmds_1, sizeof(cmds_1) / sizeof(cmds_1[0]));
-//     PF_GDC_DRV_FlushMenuCommand();
-
-    
-//     // printf("test_draw_fill_rect() is tested sucessfully!\n");
-// // }
     printf("test_draw() is tested sucessfully!\n");
 }
