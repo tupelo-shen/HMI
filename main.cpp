@@ -37,9 +37,9 @@ void KeyboardScan(HmiMain* p_hmi)
 
         if(input != EOF)
         {
-            HmiEvent ev(HmiEvent::HMI_EV_KEYDOWN, (unsigned long)input);
-            p_hmi->SetReady(true);
-            p_hmi->AddEventQueue(ev);
+            HmiEvent ev(HMI_EV_TOUCH, (unsigned long)input);
+            p_hmi->setReady(true);
+            p_hmi->addEventQueue(ev);
         }
     }
 }
@@ -79,52 +79,6 @@ int main(int argc, char* argv[])
         {}
         break;
     }
-    // 创建HMI_MAIN线程
-    // HmiMain* p_hmi = new HmiMain();
-    // std::thread hmi_main(hmiMain, p_hmi);
-    // hmi_main.detach();
-    
-    // sim.gtkmain(argc, argv);
-
-    // while(true)
-    // {
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    //     struct termios new_settings;
-    //     struct termios stored_settings;
-
-    //     // tty访问设置
-    //     tcgetattr(0, &stored_settings);
-    //     new_settings = stored_settings;
-    //     new_settings.c_lflag &= (~ICANON);
-    //     new_settings.c_cc[VTIME] = 0;
-    //     tcgetattr(0, &stored_settings);
-    //     new_settings.c_cc[VMIN] = 1;
-    //     tcsetattr(0, TCSANOW, &new_settings);
-
-    //     int input = getchar();
-
-    //     tcsetattr(0, TCSANOW, &stored_settings);
-
-    //     if(input != EOF)
-    //     {
-    //         HmiEvent ev(HmiEvent::HMI_EV_KEYDOWN, (unsigned long)input);
-    //         p_hmi->SetReady(true);
-    //         p_hmi->AddEventQueue(ev);
-    //     }
-    // }
 
     return 0;
 }
-
-// #include <boost/filesystem.hpp>
-
-// int main(void)
-// {
-//     boost::filesystem::path path("/test/test1");
-//     boost::filesystem::path old_cpath = boost::filesystem::current_path();
-//     boost::filesystem::path parent_path = old_cpath.parent_path();
-//     boost::filesystem::path file_path = old_cpath/"file"; //path支持重载/运算符
-    
-//     return 0;
-// }

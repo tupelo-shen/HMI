@@ -1,5 +1,6 @@
 #include "sclUtil.h"
 #include "HMI_Resource.h"
+#include "HmiMain.h"
 
 #define HEAP_SIZE       INIT_MEM_SIZE
 
@@ -16,6 +17,7 @@ static int              sc_font_num;
 
 static unsigned short   sc_string_tab[SC_MAX_STR_NUM][SC_MAX_STR_LENGTH];    // 380KB
 
+static short            sc_pre_screen_id[HMI_SCREEN_END - HMI_SCREEN_START] = {-1};
 /*
  *      得到模拟的heap的大小
  *
@@ -138,4 +140,48 @@ unsigned short  sc_getPictWidth(int pict_id)
 void sc_getFixedString(int target_ID, unsigned short* str)
 {
     SCUTF16_StrCpy(str, sc_string_tab[target_ID]);
+}
+
+/****************************************************************************/
+/**
+ * @brief           sc_getPreScreenID()
+ *                  返回当前画面的前一个画面
+ *
+ * @param[in]       sID:            当前画面
+ *
+ * @return          void
+ */
+/****************************************************************************/
+short sc_getPreScreenID(short sID)
+{
+    short preScreenID = -1;
+    if((sID >= HMI_SCREEN_START) && (sID < HMI_SCREEN_END)) 
+    {
+        short screenNo = sID - HMI_SCREEN_START;
+        preScreenID = sc_pre_screen_id[screenNo];
+    }
+    return (preScreenID);
+}
+
+/****************************************************************************/
+/**
+ * @brief           sc_setPreScreenID()
+ *                  当前画面的前一个画面
+ *
+ * @param[in]       sID:            当前画面
+ *                  preScreenID:    当前画面的前一个画面
+ *
+ * @return          void
+ */
+/****************************************************************************/
+void sc_setPreScreenID(short sID, short preScreenID)
+{
+    if( (preScreenID >= HMI_SCREEN_START) &&
+        (preScreenID < HMI_SCREEN_END) &&
+        (sID >= HMI_SCREEN_START) && 
+        (sID < HMI_SCREEN_END) ) 
+    {
+        short screenNo = sID - HMI_SCREEN_START;
+        sc_pre_screen_id[screenNo] = preScreenID;
+    }
 }

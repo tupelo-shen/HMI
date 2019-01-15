@@ -99,4 +99,7 @@ SCFONTINFO*             sc_getFontInfo(void);
 SCFONTTAB               sc_getFontTab(void);
 unsigned short          sc_getPictWidth(int pict_id);
 void                    sc_getFixedString(int target_ID, unsigned short* str);
+
+short                   sc_getPreScreenID(short sID);
+void                    sc_setPreScreenID(short sID, short preScreenID);
 #endif /* __HMI_RESOURCE_H__ */

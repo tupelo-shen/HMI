@@ -28,6 +28,16 @@
 #define VRAM_REGIST_SIZE                (4*1024)
 #define VRAM_EXPORT_SIZE                ((1024+640)*1024)       // 1.6MB（将字体和图像数据展开到VRAM时，一次写入的上限值）
 
+/****************************************************************************/
+/**
+ * @brief           SendEvent2HMI()
+ *                  注册字体信息及字体数据
+ *
+ * @param[in]          
+ *
+ * @return          void
+ */
+/****************************************************************************/
 extern "C" void SendEvent2HMI(
     pf_touch_event_t            ev,
     pf_point_t                  pnt,
@@ -35,18 +45,42 @@ extern "C" void SendEvent2HMI(
     pf_drag_flick_direction_t   direc
 )
 {
-    HmiEvent ev_info(HmiEvent::HMI_EV_MOUSE_PRESSED, (unsigned long)pnt.x);
-    HMIMAIN->SetReady(true);
-    HMIMAIN->AddEventQueue(ev_info);
+//    if (/* event queue is full && ev == pf_touch_event_drag */)
+//        return;
+
+    if(HMIMAIN != 0)
+    {
+        HmiEvent ev_info(HMI_EV_TOUCH, ev, pnt, level, direc);
+        
+        HMIMAIN->setReady(true);
+        HMIMAIN->addEventQueue(ev_info);
+    }
 }
-/// function    HmiMain
-/// brief       constructor
+
+/****************************************************************************/
+/**
+ * @brief           HmiMain()
+ *                  构造函数
+ *
+ * @param[in]          
+ *
+ * @return          void
+ */
+/****************************************************************************/
 HmiMain::HmiMain() : is_ready(false)
 {
 }
 
-/// function    ~HmiMain
-/// brief       deconstructor
+/****************************************************************************/
+/**
+ * @brief           ~HmiMain()
+ *                  析构函数
+ *
+ * @param[in]          
+ *
+ * @return          void
+ */
+/****************************************************************************/
 HmiMain::~HmiMain()
 {
 }
@@ -54,6 +88,16 @@ HmiMain::~HmiMain()
 #include "sclParts.h"
 #include "sclLabel.h"
 
+/****************************************************************************/
+/**
+ * @brief           start()
+ *                  初始化，然后启动主要逻辑的处理
+ *
+ * @param[in]       void      
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void HmiMain::start(void)
 {
     int sts;
@@ -70,6 +114,9 @@ void HmiMain::start(void)
 
     // 注册调色板1、2
     sts = registPalette();
+
+    // 配置触摸屏
+    configureTouchPanel();
 
 #if 0   /* for testing simulator */
     test_main();
@@ -95,7 +142,44 @@ void HmiMain::start(void)
         board->Display(com_num, com_buf);
     }
 #endif
+    
+    startScreen();
+
     main();
+}
+
+/****************************************************************************/
+/**
+ * @brief           registFont()
+ *                  注册字体信息及字体数据
+ *
+ * @author          Tupelo
+ * @date            2018-12-27
+ *
+ * @param[in/out]   
+ *
+ * @return  int     填充的描画命令数
+ */
+/****************************************************************************/
+void HmiMain::configureTouchPanel(void)
+{
+    // 鼠标等输入设备的配置
+    pf_touch_config_t           t_conf;
+
+    t_conf.fpga_sampling = 0;
+    t_conf.flick_sampling = 0;
+    t_conf.longtap_detection_time = 0;
+    t_conf.touch_threshold = 0;
+    t_conf.drag_flick_threshold_level1 = 0;
+    t_conf.drag_flick_threshold_level2 = 0;
+    t_conf.drag_flick_threshold_level3 = 0;
+    t_conf.width_resolution = 0;
+    t_conf.height_resolution = 0;
+
+    PF_GDC_DRV_SetTouchPanelConfigData(SendEvent2HMI, &t_conf);
+    
+    // 设置透明色
+    PF_GDC_DRV_SetTransparentColor(HMI_TRANSPARENT_COLOR);
 }
 
 /****************************************************************************/
@@ -384,6 +468,259 @@ int HmiMain::VramAccessBlock(
 
 /****************************************************************************/
 /**
+ * @brief           updateCyclic()
+ *                  定周期刷新
+ *
+ * @param[in/out]   void
+ *
+ * @return          void
+ */
+/****************************************************************************/
+void HmiMain::updateCyclic(void)
+{
+    // 画面存在的话，定周期事件通知
+    if(m_screen)
+    {
+        m_screen->UpdateDisplay(SCUpdateTypeCYCLIC);
+    }
+}
+
+/****************************************************************************/
+/**
+ * @brief           updateTimer()
+ *                  定周期刷新
+ *
+ * @param[in/out]   void
+ *
+ * @return          void
+ */
+/****************************************************************************/
+void HmiMain::updateTimer(void)
+{
+    // 画面存在的话，定时器（Timer）周期事件通知
+    if(m_screen) {
+        m_screen->UpdateDisplay(SCUpdateTypeTIMER);
+    }
+}
+
+/****************************************************************************/
+/**
+ * @brief           getActiveBoard()
+ *                  当前获得焦点的Board
+ *
+ * @param[in/out]   void
+ *
+ * @return          SCBoard: 当前获得焦点的Board
+ */
+/****************************************************************************/
+SCBoard* HmiMain::getActiveBoard(void)
+{
+    SCBoard*    rtn = 0;
+
+    if(m_screen) 
+    {
+        rtn = m_screen->GetActiveBoard();
+    }
+
+    return(rtn);
+}
+
+/****************************************************************************/
+/**
+ * @brief           startScreen()
+ *                  当前获得焦点的Board
+ *
+ * @param[in/out]   void
+ *
+ * @return          SCBoard: 当前获得焦点的Board
+ */
+/****************************************************************************/
+void HmiMain::startScreen(void)
+{
+    HmiEvent    ev_info(HMI_EV_CHG_SCREEN);
+
+    // 切换画面的参数清零
+    ev_info.SetUShort(1, 0);
+    ev_info.SetULong(0);
+    ev_info.SetUInt(0, 0);
+    ev_info.SetUInt(1, 0);
+    ev_info.SetUInt(2, 0);
+
+    // 切换画面
+    changeScreen(HMI_SCREEN_HOME, ev_info, false);
+}
+
+/****************************************************************************/
+/**
+ * @brief           changeScreen()
+ *                  切换屏幕
+ *
+ * @param[in/out]   void
+ *
+ * @return          SCBoard: 当前获得焦点的Board
+ */
+/****************************************************************************/
+void HmiMain::changeScreen(
+    short               screen_id,
+    HmiEvent&           ev_info,
+    bool                isNeedForChangePreScreenID
+)
+{
+    // 检查指定画面ID是否正确
+    // checkScreenID(&screen_id); // Todo:待修改
+
+    // 销毁旧画面
+    if(m_screen != NULL) 
+    {
+        unsigned long*  buf;
+        unsigned long   size;
+
+        if(isNeedForChangePreScreenID) {
+            sc_setPreScreenID(screen_id, m_screen->GetScreenID());
+        }
+        delete m_screen;
+        m_screen = NULL;
+
+        // 念のためヒープのオールクリア
+        // buf = sc_getHmiHeap(&size);
+        // getHMIHeap()->initialize(buf, size);
+    }
+
+    // 设置新画面
+    setNewScreen(screen_id, ev_info);
+
+
+    if(m_screen == NULL) { // エラー処理(ヒープ不足。ヒープクリア。start画面へ)
+        unsigned long*  buf;
+        unsigned long   size;
+
+        // ヒープのオールクリア
+        // buf = sc_getHmiHeap(&size);
+        // getHMIHeap()->initialize(buf, size);
+
+        // startScreen();
+    }
+    else {
+        // 画面ID保存
+        m_screen_id = screen_id;
+
+        m_screen->ReDrawDisplay();
+    }
+}
+
+/****************************************************************************/
+/**
+ * @brief           setNewScreen()
+ *                  生成新画面
+ *
+ * @param[in]       screen_id:  新画面ID
+ *                  ev_info：    事件
+ *                  
+ * @return          void
+ */
+/****************************************************************************/
+void HmiMain::setNewScreen(short screen_id, HmiEvent& ev_info)
+{
+    // SCRect      area;
+
+    // clear display area
+    // area.Set((unsigned short)0,             /* x */ 
+    //         (unsigned short)0,              /* y */
+    //         (unsigned short)HMI_SCREEN_W,   /* width */
+    //         (unsigned short)HMI_SCREEN_H);  /* height */
+
+
+    // // change screen
+    // switch(screen_id) 
+    // {
+    // default:
+    // case HMI_SCREEN_TEST:   // Test用画面構築
+    //     // m_screen = new TestScreen(area, screen_id);
+    //     break;
+    // case HMI_SCREEN_MAIN:
+    // // {
+    // //     SCReleaseWritePermission(); // 無条件でWrite限リリース（Auto Return可能性があるので）
+    // //     SCDISPNO hmiDispNo = sc_getHmiDispNo();
+    // //     unsigned short display_no = sc_getDisplayNo();
+    // //     m_screen = new MainScreen(area, screen_id, hmiDispNo, display_no);
+    // // }
+    //     break;
+    // case HMI_SCREEN_HOME:
+    //     // SCReleaseWritePermission(); // 無条件でWrite限リリース（Auto Return可能性があるので）
+    //     // m_screen = new HomeScreen(area, screen_id);
+    //     break;
+    // }
+}
+
+/****************************************************************************/
+/**
+ * @brief           setNewScreen()
+ *                  生成新画面
+ *
+ * @param[in]       screen_id:  新画面ID
+ *                  ev_info：    事件
+ *                  
+ * @return          void
+ */
+/****************************************************************************/
+void HmiMain::procTouch(pf_touch_log_t& t_ev)
+{
+    if(m_screen) 
+    {
+        switch(t_ev.event) 
+        {
+        case pf_touch_event_touch:
+            m_screen->TDown(t_ev.point.x, t_ev.point.y);
+            break;
+
+        case pf_touch_event_drag:
+            m_screen->TMove(t_ev.point.x, t_ev.point.y, t_ev.level,
+                    t_ev.direction);
+            break;
+
+        case pf_touch_event_release:
+            m_screen->TUp(t_ev.point.x, t_ev.point.y);
+            break;
+
+        case pf_touch_event_flick:
+            if(t_ev.level > 1) 
+            {
+                m_screen->TFlick(t_ev.point.x, t_ev.point.y, t_ev.level,
+                        t_ev.direction);
+            }
+            break;
+
+        // case pf_touch_event_longtap:
+        //     switch(m_touch_ev_sts) {
+        //     case TOUCH_EV_RUN:
+        //         m_screen->TLongTap(t_ev.point.x, t_ev.point.y);
+        //         break;
+
+        //     case TOUCH_EV_READY:
+        //     case TOUCH_EV_SUSPEND:
+        //         m_touch_ev_sts--;
+        //         break;
+
+        //     default:
+        //         m_touch_ev_sts = TOUCH_EV_READY;
+        //         break;
+        //     }
+
+        //     break;
+
+        // case pf_touch_event_calibration_init:
+        //     LiqHMIEvChgScreen(LIQ_HMI_SCREEN_ADJUST_TOUCH,
+        //             AdTouchScreen::SCREEN_MODE_ADJUST, 0, 0, 0, 0);
+        //     break;
+
+        default:
+            break;
+        }
+    }
+}
+
+/****************************************************************************/
+/**
  * @brief           main()
  *                  HMI的主程序，完成HMI相关主要逻辑的处理
  *
@@ -394,23 +731,8 @@ int HmiMain::VramAccessBlock(
 /****************************************************************************/
 void HmiMain::main(void)
 {
-    // 鼠标等输入设备的配置
-    pf_touch_config_t           t_conf;
+    HmiEvent ev(HMI_EV_NONE);
 
-    t_conf.fpga_sampling = 0;
-    t_conf.flick_sampling = 0;
-    t_conf.longtap_detection_time = 0;
-    t_conf.touch_threshold = 0;
-    t_conf.drag_flick_threshold_level1 = 0;
-    t_conf.drag_flick_threshold_level2 = 0;
-    t_conf.drag_flick_threshold_level3 = 0;
-    t_conf.width_resolution = 0;
-    t_conf.height_resolution = 0;
-
-    PF_GDC_DRV_SetTouchPanelConfigData(SendEvent2HMI, &t_conf);
-
-    HmiEvent ev(HmiEvent::HMI_EV_NONE);
-    
     while(true) 
     {
         // 事件处理
@@ -419,7 +741,7 @@ void HmiMain::main(void)
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
             // 事件处理
-            if(!IsEmpty() && GetEventQueue((HmiEvent&) ev))
+            if(!isEmpty() && getEventQueue((HmiEvent&) ev))
             {
                 eventHandler(ev);
             }
@@ -439,20 +761,51 @@ void HmiMain::main(void)
 /****************************************************************************/
 void HmiMain::eventHandler(HmiEvent& ev)
 {
-    HmiEvent::HmiEventType type = HmiEvent::HMI_EV_NONE;
-    unsigned long param;
+    HmiEventType        type = HMI_EV_NONE;
+    unsigned short      sparm;
+    pf_touch_log_t      touch_ev;
+    static short        timer_cnt = 0;
 
     // get event type & param
     type = ev.GetEvent();
     switch(type) 
     {
-    case HmiEvent::HMI_EV_KEYDOWN:
-        param = ev.GetULArg();
-        // std::cout << std::endl << "\"" << (char)param << "\" key is pushed down!" << std::endl;
+    case HMI_EV_CHG_SCREEN:
+        sparm = ev.GetUShort(0);        // 画面ID
+        changeScreen((short)sparm, ev, true);
         break;
-    case HmiEvent::HMI_EV_MOUSE_PRESSED:
-        param = ev.GetULArg();
-        // std::cout << std::endl << "\"" << (unsigned long)param << "\" key is pushed down!" << std::endl;
+
+    case HMI_EV_CYCLIC:
+        updateCyclic();
+        break;
+
+    case HMI_EV_TOUCH:
+        ev.GetTouchEventInfo(&touch_ev);
+        procTouch(touch_ev);
+        break;
+
+    case HMI_EV_TIMER_ENABLE:
+        sparm = ev.GetUShort(0);
+        timer_cnt = (sparm == 0)? 0x7fff : sparm;
+        m_hmi_timer = true;
+        break;
+
+    case HMI_EV_TIMER_DISABLE:
+        m_hmi_timer = false;
+        timer_cnt = 0;
+        break;
+
+    case HMI_EV_TIMER:
+        if(m_hmi_timer) 
+        {
+            updateTimer();
+            timer_cnt--;
+            if(timer_cnt == 0) {
+                m_hmi_timer = false;
+            }
+        }
+        break;
+
     default: // HMI_EV_NONE or not defined
         break;
     }

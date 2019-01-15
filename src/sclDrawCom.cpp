@@ -421,7 +421,7 @@ int SCDrawCom::makeFixedString(
  *  unsigned char   back_color;     背景の色
  */
 /****************************************************************************/
-#include <stdio.h>
+// #include <stdio.h>      //Todo: be used for debugging
 int SCDrawCom::makeFreeString(
     SCDRAWPARAM&        param,
     unsigned short*     draw_command_buf
@@ -1784,6 +1784,7 @@ int     SCDrawCom::makeCom16171819(
  * 
  * @return  ： 
  */
+// #include <stdio.h>      // Todo: for debug
 int     SCDrawCom::makeCom3e(
     unsigned short* str,
     unsigned short  distance,
@@ -1800,6 +1801,7 @@ int     SCDrawCom::makeCom3e(
     command_num++;
 
     while(*str) {
+        // printf("str = %c\n", *str);
         *p_buf++ = *str++;
         command_num++;
 
@@ -1871,13 +1873,17 @@ int SCDrawCom::getFontHeight(unsigned short  font_type)
     return(rtn);
 }
 
-/*
- * @decs    : 
- * 
- * @params  ： 
- * 
- * @return  ： 
+/****************************************************************************/
+/**
+ * @brief           getStringWidth()
+ *                  获取字符串实际显示的像素宽度
+ *
+ * @param[in]       font_type:  描画命令保存位置
+ *
+ * @return          str_width:  实际显示的像素宽度
  */
+/****************************************************************************/
+// #include "stdio.h"      // Todo: for debug
 int SCDrawCom::getStringWidth(
     unsigned short  font_type,
     unsigned short* str
@@ -1889,20 +1895,21 @@ int SCDrawCom::getStringWidth(
 
     font_info = sc_getFontInfo();
     width_address = font_info[font_type].width;
-
+    // printf("width_address = %3x\n", *width_address); // Todo: for debug
     str_width = 0;
 
     while(*str) {
+        // printf("str = %c\n", (char)*str);
         str_width += width_address[*str];
         str++;
 
-        // 次の文字幅を足しこんだときにプレーン幅より大きくなるなら
+        // 如果加上下一個字符比PLANE的宽度宽的话，跳出循环
         if(str_width + width_address[*str] > SC_PLANE_WIDTH) {
             break;
         }
     }
 
-
+    // printf("str_width = %3d\n", str_width); // Todo: for debug
     return(str_width);
 }
 

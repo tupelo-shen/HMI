@@ -21,7 +21,8 @@ SRC_OBJS 	= src/Common.o\
 			src/sclBoard.o\
 			src/sclParts.o\
 			src/sclCallback.o\
-			src/sclLabel.o
+			src/sclLabel.o\
+			src/sclButton.o
 
 TEST_OBJS	= src/test_Simulator.o
 

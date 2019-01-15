@@ -70,6 +70,9 @@ typedef struct
   unsigned short height;  /**> 高度 */
 } pf_font_size_t;
 
+/*
+ * 屏幕touch事件
+ */
 typedef enum
 {
     pf_touch_event_touch = 0,
@@ -106,6 +109,18 @@ typedef struct
   unsigned short height_resolution;           /**< ��������\ */
 
 } pf_touch_config_t;
+
+/*!
+\brief 20字节
+*/
+typedef struct
+{
+  unsigned int counter;                 /**< 计数器 */
+  pf_touch_event_t event;               /**< touch事件 */
+  pf_point_t point;                     /**< touch点的坐标 */
+  unsigned int level;                   /**< level */
+  pf_drag_flick_direction_t direction;  /**< 拖拽方向 */
+} pf_touch_log_t;
 
 typedef void (*pf_touch_event_func_t)(pf_touch_event_t, pf_point_t, unsigned int, pf_drag_flick_direction_t);
 

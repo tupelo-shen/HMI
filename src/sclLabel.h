@@ -30,8 +30,8 @@ class SCLabel : public SCParts
 
 public:
     SCLabel( const short id, const SCRect& area,
-            unsigned short  font_type   = SC_PARTS_FONT_TYPE_MFONT,
-            unsigned char   fore_color  = COLOR_SKY_BLUE/*COLOR_BLACK*/,
+            unsigned short  font_type   = SC_PARTS_FONT_TYPE_SFONT/* SC_PARTS_FONT_TYPE_MFONT */,
+            unsigned char   fore_color  = COLOR_SKY_BLUE/* COLOR_BLACK */,
             unsigned char   back_color  = COLOR_TRANSPARENT,
             unsigned int    work_scr    = SC_UPDATE_WORK,
             DRAW_MODE       draw_mode   = DRAWMODE_DIRECT);
