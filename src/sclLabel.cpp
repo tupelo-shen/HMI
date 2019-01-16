@@ -12,6 +12,7 @@
 #include "sclUtil.h"
 
 // 类信息记录
+// M_IMPLEMENT_RUNTIME(SCLabel, SCUpdateTypeNONE, SCParts)
 M_IMPLEMENT_RUNTIME(SCLabel, SCUpdateTypeNONE, SCParts)
 
 SCLabel::SCLabel(
@@ -49,7 +50,7 @@ SCLabel::~SCLabel()
  * @return  int     填充的描画命令数
  */
 /****************************************************************************/
-// #include "stdio.h"      
+#include "stdio.h"       // Todo
 int SCLabel::drawCapture(unsigned short** com_pos)
 {
     int com_num = 0;
@@ -79,10 +80,11 @@ int SCLabel::drawCapture(unsigned short** com_pos)
     if(m_targetID < 0)                      // Mitomo modified 固定文字列未使用時は、m_targetIDが負の値
     {
         param.str = m_label;                    // 表示文字列
-
+        
         // 使用指定的字体大小绘制
         if(m_drawMode == DRAWMODE_DIRECT)
         {
+            
             com_num += SCDrawCom::makeFreeString(param, *com_pos);
         }
         // 按语言自动更改字体大小

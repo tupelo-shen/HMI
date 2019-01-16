@@ -19,6 +19,11 @@
 #include "HMI_Resource.h"
 #include "sclColor.h"
 #include "sclDrawCom.h"
+// #include "sclBoard.h"
+#include "sclParts.h"
+#include "sclLabel.h"
+#include "sclButton.h"
+#include "dspBaseScreen.h"
 
 #include "test_Simulator.h"
 
@@ -67,7 +72,11 @@ extern "C" void SendEvent2HMI(
  * @return          void
  */
 /****************************************************************************/
-HmiMain::HmiMain() : is_ready(false)
+HmiMain::HmiMain() : 
+    is_ready(false),
+    m_screen_id(HMI_SCREEN_NONE),
+    m_screen(0),
+    m_hmi_timer(false)
 {
 }
 
@@ -84,9 +93,6 @@ HmiMain::HmiMain() : is_ready(false)
 HmiMain::~HmiMain()
 {
 }
-#include "sclBoard.h"
-#include "sclParts.h"
-#include "sclLabel.h"
 
 /****************************************************************************/
 /**
@@ -124,7 +130,7 @@ void HmiMain::start(void)
 #if 0
     test_draw();
 #endif
-#if 1
+#if 0
     const SCRect m_rect = {100, 100, 100, 100};
     unsigned short* com_buf;
     SCBoard* board = new SCBoard(m_rect, 1);
@@ -621,35 +627,62 @@ void HmiMain::changeScreen(
 /****************************************************************************/
 void HmiMain::setNewScreen(short screen_id, HmiEvent& ev_info)
 {
-    // SCRect      area;
-
+    SCRect      area;  
+    SCParts*    part;
+    SCLabel*    title_lbl;
+    SCButton*   btn;
     // clear display area
-    // area.Set((unsigned short)0,             /* x */ 
-    //         (unsigned short)0,              /* y */
-    //         (unsigned short)HMI_SCREEN_W,   /* width */
-    //         (unsigned short)HMI_SCREEN_H);  /* height */
+    area.Set((unsigned short)5,             /* x */ 
+            (unsigned short)5,              /* y */
+            (unsigned short)(HMI_SCREEN_W-10),   /* width */
+            (unsigned short)(HMI_SCREEN_H-10));  /* height */
 
 
-    // // change screen
-    // switch(screen_id) 
+    // change screen
+    switch(screen_id) 
+    {
+    default:
+    case HMI_SCREEN_TEST:   // Test用画面構築
+        // m_screen = new TestScreen(area, screen_id);
+        break;
+    case HMI_SCREEN_MAIN:
     // {
-    // default:
-    // case HMI_SCREEN_TEST:   // Test用画面構築
-    //     // m_screen = new TestScreen(area, screen_id);
-    //     break;
-    // case HMI_SCREEN_MAIN:
-    // // {
-    // //     SCReleaseWritePermission(); // 無条件でWrite限リリース（Auto Return可能性があるので）
-    // //     SCDISPNO hmiDispNo = sc_getHmiDispNo();
-    // //     unsigned short display_no = sc_getDisplayNo();
-    // //     m_screen = new MainScreen(area, screen_id, hmiDispNo, display_no);
-    // // }
-    //     break;
-    // case HMI_SCREEN_HOME:
-    //     // SCReleaseWritePermission(); // 無条件でWrite限リリース（Auto Return可能性があるので）
-    //     // m_screen = new HomeScreen(area, screen_id);
-    //     break;
+    //     SCReleaseWritePermission(); // 無条件でWrite限リリース（Auto Return可能性があるので）
+    //     SCDISPNO hmiDispNo = sc_getHmiDispNo();
+    //     unsigned short display_no = sc_getDisplayNo();
+    //     m_screen = new MainScreen(area, screen_id, hmiDispNo, display_no);
     // }
+        m_screen = new BaseScreen(area, screen_id);
+        part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_TITLE_LBL);
+        title_lbl = (SCLabel *)part;
+        if (title_lbl) title_lbl->setStr("P");
+
+        part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_PREV_BTN);
+        btn = (SCButton *)part;
+        if(btn) btn->setStr("p");
+
+        part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_NEXT_BTN);
+        btn = (SCButton *)part;
+        if(btn) btn->setStr("n");
+        break;
+
+    case HMI_SCREEN_HOME:
+        // SCReleaseWritePermission(); // 無条件でWrite限リリース（Auto Return可能性があるので）
+        m_screen = new BaseScreen(area, screen_id);
+        part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_TITLE_LBL);
+        title_lbl = (SCLabel *)part;
+        if (title_lbl) title_lbl->setStr("N");
+        
+        part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_PREV_BTN);
+        btn = (SCButton *)part;
+        if(btn) btn->setStr("p");
+
+        part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_NEXT_BTN);
+        btn = (SCButton *)part;
+        if(btn) btn->setStr("n");
+
+        break;
+    }
 }
 
 /****************************************************************************/
@@ -738,7 +771,7 @@ void HmiMain::main(void)
         // 事件处理
         while(true) 
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
             // 事件处理
             if(!isEmpty() && getEventQueue((HmiEvent&) ev))

@@ -15,10 +15,13 @@ void hmiMain(HmiMain* p_hmi)
 
 void KeyboardScan(HmiMain* p_hmi)
 {
+    unsigned int timer = 0;
+
     while(true)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        timer++;
+#if 0
         struct termios new_settings;
         struct termios stored_settings;
 
@@ -38,6 +41,14 @@ void KeyboardScan(HmiMain* p_hmi)
         if(input != EOF)
         {
             HmiEvent ev(HMI_EV_TOUCH, (unsigned long)input);
+            p_hmi->setReady(true);
+            p_hmi->addEventQueue(ev);
+        }
+#endif
+        if(timer == 1)
+        {
+            timer = 0;
+            HmiEvent ev(HMI_EV_CYCLIC, (unsigned long)0);
             p_hmi->setReady(true);
             p_hmi->addEventQueue(ev);
         }

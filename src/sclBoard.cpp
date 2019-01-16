@@ -26,6 +26,8 @@
 
 // 设定Class信息
 M_IMPLEMENT_RUNTIME(SCBoard, SCUpdateTypeNONE, SCCore)
+// M_IMPLEMENT_RUNTIME(SCBoard, SCUpdateTypeCYCLIC, SCCore)
+
 /****************************************************************************/
 /**
  * @brief       SCBoard()
@@ -156,7 +158,7 @@ int SCBoard::Update(const int updateType, unsigned short* com)
         int             commandNum;
         unsigned short* comPos = com;
         SCParts*        child = m_child;
-
+        
         do {
             // 描画子部品
             commandNum = child->Update(updateType, comPos);
@@ -199,7 +201,6 @@ void SCBoard::Display(int cmd_num, unsigned short* com) const
 {
     SCDRAWPARAM     param;
     unsigned int    pal_no, scr_no;
-
 
     // 获取当前画面的编号（screen_id）、plate编号；计算切换画面后的画面编号
     PF_GDC_DRV_GetPaletteAndScreen(&pal_no, &scr_no);
@@ -873,8 +874,8 @@ void    SCBoard::RegistParts(
 {
     SCParts*    last;
 
-
-    if(target) {
+    if(target) 
+    {
         // 将自己注册为指定对象部品的父部品
         target->Parent(this);
 

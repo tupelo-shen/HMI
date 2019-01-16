@@ -14,7 +14,7 @@
 
 // class info
 M_IMPLEMENT_RUNTIME(SCButton, SCUpdateTypeNONE, SCLabel)
-
+// M_IMPLEMENT_RUNTIME(SCButton, SCUpdateTypeCYCLIC, SCLabel)
 
 /**
  * @brief   constructor

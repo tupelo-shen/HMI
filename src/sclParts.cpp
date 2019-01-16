@@ -14,7 +14,7 @@
 
 // クラス情報の設定
 M_IMPLEMENT_RUNTIME(SCParts, SCUpdateTypeNONE, SCCore)
-
+// M_IMPLEMENT_RUNTIME(SCParts, SCUpdateTypeCYCLIC, SCCore)
 
 SCParts::SCParts(
     const short     id,
