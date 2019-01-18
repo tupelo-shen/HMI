@@ -314,7 +314,8 @@ int SCBoard::DrawBackground(
     param.fill = true;                  // 填充
     param.back_color = GetBackColor();  // 填充颜色
     param.rect = area;                  // 填充区域
-    param.frame = (area == m_area)? isDialog : false;
+    // param.frame = (area == m_area)? isDialog : false;
+    param.frame = true; // 临时修改-沈万江2019/01/18;
                                         // 边框 画面（没有）/Dialog（有）
     param.fore_color = COLOR_GRAY_88;
     com_num = SCDrawCom::makeRect(param, com_pos);

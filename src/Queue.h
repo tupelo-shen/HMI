@@ -37,6 +37,7 @@ namespace ana_stl
                 {
                     full = true;
                 }
+                return true;
             }
         }
 
@@ -71,6 +72,17 @@ namespace ana_stl
             }
         }
 
+        // 获取队列当前最前头的元素
+        ELEMENT element_back()
+        {
+            if (front != back || full)
+            {
+                return m_e[back-1];
+            }else
+            {
+                return 0;
+            }
+        }
         // 当前队列中的元素个数
         std::size_t count()
         {

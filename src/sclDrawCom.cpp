@@ -1,5 +1,6 @@
 #include "HMI_Resource.h"
 #include "sclDrawCom.h"
+#include "sclUtil.h"
 
 /* いずれ移動予定の定义 */
 #define SC_PLANE_WIDTH      (512)
@@ -465,7 +466,7 @@ int SCDrawCom::makeFreeString(
     // メニュー描画BitBlt転送先座標設定Ｘ座標(0x0f)
     *p_buf++ = makeCom0f(pos.x);
 
-    // 文字列データ作成ドライバ専用コマンド(0x3e)
+    // 制作字符串专用Command(0x3e)
     // 描画実行コマンドは0x3eコマンドを展開時にドライバが付加
     p_buf += makeCom3e(param.str, param.distance, p_buf);
 
@@ -542,8 +543,8 @@ int SCDrawCom::makeFixedStringReal(
  * @author  A.Kubota
  * @date    2017/04/12
  *
- * @param[in]   SCDRAWPARAM&    param               描画依頼パラメータ
- * @param[out]  unsigned short* draw_command_buf    描画コマンドバッファ
+ * @param[in]   SCDRAWPARAM&    param               描画依赖的参数
+ * @param[out]  unsigned short* draw_command_buf    描画命令buf
  *
  * @return      int     作成した描画パラメータ数
  *
@@ -582,9 +583,9 @@ int SCDrawCom::makeFreeStringReal(
     SCDRAWPARAM     work_param;
 
 
-    // 依頼用パラメータのFontTypeを実際のFontTypeに変更
+    // 实际字体赋值给param中的font_type
     work_param = param;
-    // work_param.font_type = SCGetRealFontType(work_param.font_type);
+    work_param.font_type = SCGetRealFontType(work_param.font_type);
 
 
     return(makeFreeString(work_param, draw_command_buf));

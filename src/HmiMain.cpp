@@ -116,7 +116,7 @@ void HmiMain::start(void)
     // VRAM处理
     regBuf = (unsigned char *)buf;      // heap用作扩展处理的缓冲区
 
-    sts = registFont(0, regBuf);
+    sts = registFont(2, regBuf);
 
     // 注册调色板1、2
     sts = registPalette();
@@ -244,6 +244,52 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
 
         unsigned long fsize;
         loadFile("fonts/DXFont8x16.bdf", buf, &fsize);
+        // switch (lang_id)
+        // {
+        //     default:
+        //     case LANG_CH:
+        //         switch (i)
+        //         {
+        //             default:
+        //             case 0:
+        //                 loadFile("fonts/GB24_kaneko.bdf", buf, &fsize);
+        //             break;
+
+        //             case 1:
+        //                 loadFile("fonts/GB16_kaneko.bdf", buf, &fsize);
+        //             break;
+
+        //             case 2:
+        //                 loadFile("fonts/DXFont8x16.bdf", buf, &fsize);
+        //             break;
+        //         }
+        //     break;
+
+        //     case LANG_US:
+        //         printf("###\n");
+        //         switch (i)
+        //         {
+        //             default:
+        //             case 0:
+        //                 printf("0\n");
+        //                 loadFile("fonts/helvR24_r1.bdf", buf, &fsize);
+        //                 printf("end\n");
+        //             break;
+
+        //             case 1:
+        //                 printf("1\n");
+        //                 loadFile("fonts/helvR18_r3.bdf", buf, &fsize);
+        //                 printf("end\n");
+        //             break;
+
+        //             case 2:
+        //                 printf("2\n");
+        //                 loadFile("fonts/DXFont8x16.bdf", buf, &fsize);
+        //                 printf("end\n");
+        //             break;
+        //         }
+        //     break;
+        // }
 
         // 解析Head结构体信息
         head->FONT.WIDTH    = *(unsigned char *)buf;
@@ -280,7 +326,7 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
         memcpy((char*)buf, (char*)(buf+headSize), dataSize);
         memset((buf+dataSize), 0x00, INIT_MEM_SIZE-dataSize);
 #if 0
-        for (int m = 0; m < dataSize; m++)
+        for (int m = 0; m < dataSize+128; m++)
         {
             if (m % 16 == 0)
                 printf("\n====================\n");
@@ -293,7 +339,8 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
         {
             // head->FONT.CHAR[j].CODE 存储字体中单个字符的编码（unsigned short型）
             // 将buf中存储的字符数据，按照编码大小，存到编码对应的位置上
-            //printf("head->FONT.CHAR[%d].WIDTH = %d; head->FONT.CHAR[%d].CODE = %d\n", j, head->FONT.CHAR[j].WIDTH,  j, head->FONT.CHAR[j].CODE);
+            // printf("head->FONT.CHAR[%d].WIDTH = %d; head->FONT.CHAR[%d].CODE = %d\n", 
+            //         j, head->FONT.CHAR[j].WIDTH,  j, head->FONT.CHAR[j].CODE);
             font_info[i].width[head->FONT.CHAR[j].CODE] = (unsigned char)(head->FONT.CHAR[j].WIDTH);
             memcpy((char*)(buf + bitmapSize * (head->FONT.CHAR[j].CODE)), 
                     (char*)(buf + bitmapSize*j), bitmapSize);
@@ -302,6 +349,7 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
 
         // 将一种字体文件展开到VRAM中
         vramSize = bitmapSize * (head->FONT.CHAR[head->FONT.COUNT-1].CODE+1);
+        // printf("vramSize = %d\n", vramSize);
         if (vramSize%2 != 0) vramSize++;
         vramCnt = vramSize / VRAM_EXPORT_SIZE;
         vramCnt = (vramSize % VRAM_EXPORT_SIZE) ? vramCnt+1 : vramCnt;
@@ -315,15 +363,13 @@ int HmiMain::registFont(unsigned short lang_id, unsigned char* buf)
         if(sts != 0) return(sts);
 #if 0
         printf("vram_adr.ADRS.DWORD = %d\n", vram_adr.ADRS.DWORD);
-        unsigned char tmp_vram[100*16] = {0};
-        memcpy(tmp_vram, GetVram(vram_adr.ADRS.DWORD), 100*16);
-        for (int m=30;m<100;m++)
+        unsigned char tmp_vram[16000] = {0};
+        memcpy(tmp_vram, GetVram(vram_adr.ADRS.DWORD), vramSize);
+        for (int m=0;m<vramSize;m++)
         {
-            printf("\ntmp_varm[%d] = \n", m);
-            for (int n = 0; n < 16; n++)
-            {
-                printf("%x ", tmp_vram[m*n]); 
-            }               
+            // printf("tmp_varm[%d] = %x \n", m, tmp_vram[m]);
+            printf("%2x ", tmp_vram[m]);
+            if((m+1) % 16 == 0) printf("\n");              
         }
 #endif
 
@@ -627,16 +673,20 @@ void HmiMain::changeScreen(
 /****************************************************************************/
 void HmiMain::setNewScreen(short screen_id, HmiEvent& ev_info)
 {
-    SCRect      area;  
+    SCRect      area_1;
+    SCRect      area_2;    
     SCParts*    part;
     SCLabel*    title_lbl;
     SCButton*   btn;
     // clear display area
-    area.Set((unsigned short)5,             /* x */ 
+    area_1.Set((unsigned short)5,             /* x */ 
             (unsigned short)5,              /* y */
-            (unsigned short)(HMI_SCREEN_W-10),   /* width */
-            (unsigned short)(HMI_SCREEN_H-10));  /* height */
-
+            (unsigned short)(HMI_SCREEN_W-20),   /* width */
+            (unsigned short)(HMI_SCREEN_H-20));  /* height */
+    area_2.Set((unsigned short)10,             /* x */ 
+            (unsigned short)10,              /* y */
+            (unsigned short)(HMI_SCREEN_W-15),   /* width */
+            (unsigned short)(HMI_SCREEN_H-15));  /* height */
 
     // change screen
     switch(screen_id) 
@@ -652,34 +702,34 @@ void HmiMain::setNewScreen(short screen_id, HmiEvent& ev_info)
     //     unsigned short display_no = sc_getDisplayNo();
     //     m_screen = new MainScreen(area, screen_id, hmiDispNo, display_no);
     // }
-        m_screen = new BaseScreen(area, screen_id);
+        m_screen = new BaseScreen(area_1, screen_id);
         part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_TITLE_LBL);
         title_lbl = (SCLabel *)part;
-        if (title_lbl) title_lbl->setStr("P");
+        if (title_lbl) title_lbl->setStr("Prev Screen");
 
         part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_PREV_BTN);
         btn = (SCButton *)part;
-        if(btn) btn->setStr("p");
+        if(btn) btn->setStr("prev");
 
         part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_NEXT_BTN);
         btn = (SCButton *)part;
-        if(btn) btn->setStr("n");
+        if(btn) btn->setStr("next");
         break;
 
     case HMI_SCREEN_HOME:
         // SCReleaseWritePermission(); // 無条件でWrite限リリース（Auto Return可能性があるので）
-        m_screen = new BaseScreen(area, screen_id);
+        m_screen = new BaseScreen(area_2, screen_id);
         part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_TITLE_LBL);
         title_lbl = (SCLabel *)part;
-        if (title_lbl) title_lbl->setStr("N");
+        if (title_lbl) title_lbl->setStr("Next Screen");
         
         part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_PREV_BTN);
         btn = (SCButton *)part;
-        if(btn) btn->setStr("p");
+        if(btn) btn->setStr("prev");
 
         part = m_screen->GetChild(BaseScreen::BASE_PARTS_ID_NEXT_BTN);
         btn = (SCButton *)part;
-        if(btn) btn->setStr("n");
+        if(btn) btn->setStr("next");
 
         break;
     }

@@ -5,13 +5,13 @@
 
 // 部品位置信息
 const SCRect BaseScreen::title_lbl_pict_pos(6+5, 6+5, 24, 24);         // ICON位置
-const SCRect BaseScreen::title_lbl_pos     (3+5, 3+5, 60, 24);         // 按下响应的区域
+const SCRect BaseScreen::title_lbl_pos     (100+5, 90+5, 60, 24);         // 按下响应的区域
 
-const SCRect BaseScreen::prev_btn_pict_pos (36, 203, 24, 24);         // ICON位置
-const SCRect BaseScreen::prev_btn_pos      (33, 200, 60, 24);         // 按下响应的区域
+const SCRect BaseScreen::prev_btn_pict_pos (36, 193, 24, 24);         // ICON位置
+const SCRect BaseScreen::prev_btn_pos      (33, 190, 60, 24);         // 按下响应的区域
 
-const SCRect BaseScreen::next_btn_pict_pos (230, 203, 24, 24);     // ICON位置
-const SCRect BaseScreen::next_btn_pos      (227, 200,  60, 24);     // 按下响应的区域
+const SCRect BaseScreen::next_btn_pict_pos (230, 193, 24, 24);     // ICON位置
+const SCRect BaseScreen::next_btn_pos      (227, 190,  60, 24);     // 按下响应的区域
 
 /* 回调函数*/
 static void cBaseChangeScreen(int parts_id);

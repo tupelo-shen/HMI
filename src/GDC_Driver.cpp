@@ -92,8 +92,10 @@ int PF_GDC_DRV_SetTouchPanelConfigData(pf_touch_event_func_t func, const pf_touc
 int PF_GDC_DRV_SetMenuCommand(const unsigned short * cmds, unsigned int count)
 {
     for(unsigned int i=0; i<count; i++) 
-    {
+    {   
+
         DrawCommand cmd(cmds[i]);
+
         if(!cmd_buf.add(cmd)) 
         {
             PF_GDC_DRV_FlushMenuCommand();
@@ -148,6 +150,7 @@ int PF_GDC_DRV_FlushMenuCommand(void)
     while (!cmd_buf.empty())
     {
         DrawCommand cmd = cmd_buf.remove();
+
         if(ContinueDrawString())
         {
             SetMenuExecute(0x0010);

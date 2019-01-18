@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+unsigned short  SCGetRealFontType(unsigned short font_type);
 unsigned short* SCUTF16_StrCpy(unsigned short* s1, const unsigned short* s2);
 
 #ifdef __cplusplus

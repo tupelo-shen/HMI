@@ -234,6 +234,16 @@ void Transf1bitCommonRect(unsigned short    width,
 \details  1bit矩形传输文字CODE。数据源只能是线性数据。数据源是透明色时，不用填写目标地址。
 \return   なし
 *******************************************************************************/
+/****************************************************************************/
+/**
+ * @brief           Transf1bitFontRect()
+ *                  传输矩形(文字CODE)
+ *
+ * @param[in/out]   void
+ *
+ * @return          void
+ */
+/****************************************************************************/
 void Transf1bitFontRect(void)
 {
   pf_point_t point_source_offset = VramPoint(font_map[font_type]->getVramOffset());
@@ -274,15 +284,30 @@ static void addWidthOffset(unsigned int &width_offset, uint16_t char_code)
     }
 }
 
-/******************************************************************************/
-/*!
-\brief     
-\details  
-\return   None
-*******************************************************************************/
+/****************************************************************************/
+/**
+ * @brief           RectString()
+ *                  draw Label capture
+ *
+ * @author          Tupelo
+ * @date            2018-12-27
+ *
+ * @param[in/out]   unsigned short**    com_pos     描画命令保存位置
+ *
+ * @return  int     填充的描画命令数
+ */
+/****************************************************************************/
+#if 0
+#include "stdio.h"
+#endif
 void RectString(unsigned short dat) 
 {
     static unsigned int width_offset = 0;
+
+    #if 0
+    printf("dat = %d\n", dat);
+    printf("width_offset = %d\n", width_offset );
+    #endif
     if(dat == 0) 
     {
         continue_draw_str = false;
